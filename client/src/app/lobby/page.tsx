@@ -1,32 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import GameCard from "@/components/lobby/GameCard"
 import socket from "@/socket";
 
-
-
 const page = () => {
-	const [username, setUserName] = useState("");
-
-	useEffect(()=>{
-		socket.on("connect", ()=>{
-			console.log("Connected");
-		});
-
-		return () => {
-			socket.close();
-		};
-		
-	},[])
-	
-	const onUserNameSelection =()=>{
-		socket.auth = {username}
-		socket.connect();
-	}
-
-	return <div>
-		<input type="text" className="border-2 p-4 text-black" placeholder="gamertag" onChange={(e)=>{setUserName(e.target.value)}} />
-		<button className="bg-emerald-400 p-4 text-black" onClick={onUserNameSelection}>Join</button>
-	</div>;
+  return <div className="p-3 h-screen flex flex-col">
+    <div className="flex justify-center pt-10">
+        <button className="bg-emerald-400 text-white px-4 py-2 rounded-md">
+          create
+        </button>
+    </div>
+    <div>
+      <GameCard/>
+    </div>
+  </div>;
 };
 
 export default page;
