@@ -1,16 +1,35 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, redirect } from "next/navigation";
 import socket from "@/socket";
+import {v4 as uuid} from 'uuid';
+import {setCookie} from "@/lib/Cookies";
 
 export default function Home() {
+  
   const [username, setUserName] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
   useEffect(() => {
-    socket.on("connect", () => {
+    // if(localStorage.getItem('tok')&&localStorage.getItem('tok_exp')){
+    //   const token = localStorage.getItem('tok');
+    //   const expires = parseInt(localStorage.getItem('tok_exp')??"");
+
+    //   if((new Date().getTime())<expires){
+    //     redirect('/lobby');
+    //   }
+    // }
+
+    
+
+    socket.once("authToken", (token:string,expires:number) => {
+      
+      setCookie("tok",token,expires);
       router.push("/lobby");
     });
+
+
+    
 
     socket.on("connect_error", (err) => {
       if (err.message === "invalid username") {
@@ -18,15 +37,13 @@ export default function Home() {
       }
     });
     
-
-    return () => {
-      socket.close();
-    };
+    
   }, []);
 
   const onUserNameSelection = () => {
-    socket.auth = { username };
+    socket.auth = {username};
     socket.connect();
+    
   };
 
   return (

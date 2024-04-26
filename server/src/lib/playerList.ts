@@ -1,3 +1,13 @@
-const playerList: Record<string, any> = {};
+const playerList: Record<string, {username:string,expires:number}> = {};
+
+
+
+
+
+
+
+
+
+
 
 export default playerList;
