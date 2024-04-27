@@ -1,0 +1,1 @@
+export type playerAuth = Record<string, {id:string,gameID?:string,auth:{username:string,token:string,expires:number}}>;

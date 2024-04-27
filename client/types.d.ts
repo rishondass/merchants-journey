@@ -1,20 +1,18 @@
-
-export type IPointCard = {
+type IPointCard = {
 	cardID: number;
 	gems: string[];
 	points: number;
   
 };
 
-export type ITradeCard = {
+type ITradeCard = {
 	cardID: number;
 	cardType: string;
 	from: string[];
 	to: string[];
 };
 
-
-export type IPlayer = {
+type IPlayer = {
 	id: string;
   username: string;
 	gems: [string, string, string, string, string, string, string, string, string, string];
@@ -24,7 +22,7 @@ export type IPlayer = {
 	coins: {copper: number; silver: number};
 };
 
-export type IGame = {
+type IGame = {
 	gameID: string;
   gameTime: number;
 	turn: number;

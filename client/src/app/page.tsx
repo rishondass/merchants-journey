@@ -26,6 +26,7 @@ export default function Home() {
       
       setCookie("tok",token,expires);
       router.push("/lobby");
+      console.log('authing...')
     });
 
 
@@ -51,7 +52,7 @@ export default function Home() {
       {error&&<div className="text-center text-white bg-rose-500 rounded-md text-lg py-2">{error}</div>}
       <div className="pt-28">{/* TODO: add learn button/module */}</div>
       <div className="font-papyrus text-6xl text-center">
-        Merchant's Journey
+        Merchant&apos;s Journey
       </div>
       <div className="flex justify-center pt-4">
         <input
@@ -70,13 +71,13 @@ export default function Home() {
         <div className="w-[40rem] text-balance py-2">
           <p>Disclaimer:</p>
           <p>
-            Merchant's Journey is a distinct and original game inspired by the
+            Merchant&apos;s Journey is a distinct and original game inspired by the
             rich history of trade along the Silk Road. While it shares thematic
-            elements with Century: Spice Roads, Merchant's Journey is a unique
+            elements with Century: Spice Roads, Merchant&apos;s Journey is a unique
             creation with its own gameplay mechanics, components, and design.
             This game is not affiliated with or endorsed by Century: Spice Roads
             or its creators, and any similarities are coincidental. Enjoy the
-            journey and experience of Merchant's Journey as a standalone board
+            journey and experience of Merchant&apos;s Journey as a standalone board
             game adventure.
           </p>
         </div>

@@ -20,22 +20,14 @@ app.set('port', port);
 const server = createServer(app);
 export const io = new Server(server, {
 	transports:[ 'websocket', 'polling' ],
-  connectionStateRecovery: {
-    // the backup duration of the sessions and the packets
-    maxDisconnectionDuration: 2 * 60 * 1000,
-    // whether to skip middlewares upon successful recovery
-    skipMiddlewares: false,
-  }
 });
 
 io.use(validateUser);
 
 io.on('connection', (socket: Socket)=>{
-  if(socket.recovered){
-    console.log('recovered socket');
-  }else{
-    connection(socket);
-  }
+  
+
+  connection(socket);
 	
 });
 

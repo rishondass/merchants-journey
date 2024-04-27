@@ -1,32 +1,35 @@
 import React from 'react'
 import PlayerCard from './PlayerCard'
-type Props = {
-  roomID: string,
+type props = {
+  gameID: string,
   roomNumber: number,
   gameTime: number,
-  maxPlayers: number,
-  playerCount: number
+  players: IPlayer[]
 }
 
-const GameCard = () => {
+const GameCard = ({gameID, roomNumber,gameTime,players}:props) => {
   return (
     <div className="bg-bgGray w-96 rounded-md min-h-[292px] relative">
-      <div className='text-center py-4 font-bold text-lg'>Room #1</div>
+      <div className='text-center py-4 font-bold text-lg'>Room #{roomNumber}</div>
       <div className="flex p-2 h-44">
         <div className="bg-white w-full p-1 rounded-md ">
           <div className="font-semibold">Game:</div>
           <div >
-            <div>Time: Quick (5mins)</div>
-            <div>Max Players: 5</div>
+            {gameTime===300&&<div>Time: Quick (5mins)</div>}
+            {gameTime===600&&<div>Time: Regular (10mins)</div>}
+            {gameTime===1200&&<div>Time: Long (20mins)</div>}
+            <div>Max Players: {players.length}</div>
           </div>
           
         </div>
         <div>
-          <PlayerCard name={"john"} isHost={true}/>
-          <PlayerCard name={"alex"}/>
-          <PlayerCard name={"dan"}/>
-          <PlayerCard name={"ban"}/>
-          <PlayerCard name={"tan"}/>
+          {players.map((player,index) =>{
+            if(player !== null){
+              if(index==0)
+                return <PlayerCard key={index} name={player.username} isHost={true}/>
+              return <PlayerCard key={index} name={player.username}/>
+            }
+          })}
         </div>
         
       </div>

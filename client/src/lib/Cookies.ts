@@ -10,8 +10,9 @@ export const setCookie = (key:string, value:string, exp?:number)=>{
   });
 }
 
-export const getCookie = (key:string)=>{
-  return cookies().get(key);
+export const getCookie = async(key:string)=>{
+  const item = cookies().get(key);
+  return item;
 };
 
 export const getCookieAll = ()=>{
