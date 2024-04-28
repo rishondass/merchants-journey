@@ -1,7 +1,7 @@
 'use server';
 import { cookies } from 'next/headers';
 
-export const setCookie = (key:string, value:string, exp?:number)=>{
+export const setCookie = async(key:string, value:string, exp?:number)=>{
   cookies().set({
     name: key,
     value: value,
@@ -15,10 +15,10 @@ export const getCookie = async(key:string)=>{
   return item;
 };
 
-export const getCookieAll = ()=>{
+export const getCookieAll = async()=>{
   return cookies().getAll();
 }
 
-export const removeCookie = (key:string)=>{
+export const removeCookie = async(key:string)=>{
   cookies().delete(key);
 }

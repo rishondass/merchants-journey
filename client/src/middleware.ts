@@ -14,9 +14,14 @@ export function middleware(request: NextRequest) {
 
   if(request.nextUrl.pathname === "/lobby"){
     const token = request.cookies.get('tok');
+    const game  = request.cookies.get('game');
     if(!token){
       return NextResponse.redirect(new URL('/', request.url));
     }
+    if(game){
+      return NextResponse.redirect(new URL(`/game/${game.value}`, request.url));
+    }
+
 
   }
 

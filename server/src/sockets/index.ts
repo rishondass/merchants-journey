@@ -1,7 +1,7 @@
 import {type Socket} from 'socket.io';
 import { GameDao, PlayerDao } from "../dao";
 import {getPlayer,getAllPlayers,removePlayer, addGame} from '../lib/playerList';
-import {addGame as addGameObj, getGames} from "../lib/gameList";
+import {addGame as addGameObj, getGames, getGame, updateGame} from "../lib/gameList";
 import {io} from "../index"
 const connection = (socket: Socket) => {
 	//console.log(socket.data.user);
@@ -14,25 +14,60 @@ const connection = (socket: Socket) => {
   })
 
   if(socket.data.user)
-    socket.emit("authToken", socket.data.user.auth.token, socket.data.user.auth.expires);
+    socket.emit("authToken",socket.data.user.id,socket.data.user.auth.username,socket.data.user.gameID, socket.data.user.auth.token, socket.data.user.auth.expires);
 	
   /**
    * Games Sockets
    */
 
-  socket.on('createGame',(game)=>{
+  socket.on('createGame',(game,cb)=>{
     const gameObj = new GameDao(game.players,game.time);
-    gameObj.addPlayer(new PlayerDao(socket.data.user.id,socket.data.user.auth.username,['Y','Y','Y','','','','','','','']));
+    gameObj.addPlayer(new PlayerDao(socket.data.user.id,socket.data.user.auth.username));
     addGame(socket.data.user.id, gameObj.gameID);
     socket.data.user.gameID = gameObj.gameID;
     addGameObj(gameObj);
-    console.log(getGames());
-    io.emit('updateLobby', gameObj);
+    io.emit('updateLobby','CREATE', gameObj);
+    socket.join(gameObj.gameID);
+    cb(gameObj.gameID)
   })
 
+  //FIXME:Don't send all game data to lobby
   socket.on('getGames',(cb)=>{
     const games = getGames();
     cb(games);
+  })
+
+  socket.on('getGame',(gameID, cb)=>{
+    
+    const game = getGame(gameID);
+    console.log(game,gameID);
+    if(game){
+      cb(game);
+    }else{
+      cb(null)
+    }
+  })
+
+  socket.on('joinGame',(gameID:string,cb)=>{
+    const game = getGame(gameID);
+    if(game){
+      if(game.players.length < game.maxPlayers){
+        //TODO:Add people in the lobby to a lobby room and leave the lobby when they join the game room
+        socket.join(game.gameID);
+        game.addPlayer(new PlayerDao(socket.data.user.id,socket.data.user.auth.username))
+        addGame(socket.data.user.id, game.gameID);
+        socket.data.user.gameID = game.gameID;
+        updateGame(game);
+        io.emit('updateLobby','UPDATE', game);
+        io.to(game.gameID).emit('updateGame',game);
+        cb({code:200, msg:"successfully joined"})
+      }else{
+        cb({code:400, msg:"game is already full"})
+      }
+      
+    }else{
+      cb({code:404, msg:"game doesn't exist"})
+    }
   })
 
   /**

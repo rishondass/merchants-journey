@@ -1,16 +1,21 @@
 import {useState} from 'react'
 import socket from "@/socket";
-
+import { removeCookie,getCookie, getCookieAll, setCookie } from "@/lib/Cookies";
+import {useRouter} from "next/navigation";
 type props = {
   toggleModal : ()=>void;
 }
 
 const CreateModal = ({toggleModal}:props) => {
   const [game, setGame] = useState({players:2,time:600})
-
+  const router = useRouter();
 
   const createGame = ()=>{
-    socket.emit('createGame',game);
+    socket.emit('createGame',game,(gameID:string)=>{
+      setCookie('game',gameID,86400000+(new Date().getTime())).then(()=>{
+        router.push('/game/'+gameID);
+      });
+    });
     toggleModal();
   }
 

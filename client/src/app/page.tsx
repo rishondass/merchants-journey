@@ -4,12 +4,14 @@ import { useRouter, redirect } from "next/navigation";
 import socket from "@/socket";
 import {v4 as uuid} from 'uuid';
 import {setCookie} from "@/lib/Cookies";
+import { useUser } from "@/lib/globalStates";
 
 export default function Home() {
   
   const [username, setUserName] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const {setUser} = useUser();
   useEffect(() => {
     // if(localStorage.getItem('tok')&&localStorage.getItem('tok_exp')){
     //   const token = localStorage.getItem('tok');
@@ -22,8 +24,8 @@ export default function Home() {
 
     
 
-    socket.once("authToken", (token:string,expires:number) => {
-      
+    socket.once("authToken", (userID:string, username:string,gameID:string,token:string,expires:number) => {
+      setUser({username:username,userID:userID,gameID:gameID});
       setCookie("tok",token,expires);
       router.push("/lobby");
       console.log('authing...')

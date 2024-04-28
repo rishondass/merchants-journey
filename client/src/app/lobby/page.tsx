@@ -2,12 +2,13 @@
 import GameCard from "@/components/lobby/GameCard"
 import socket from "@/socket";
 import { FaUserAlt } from "react-icons/fa";
-import { removeCookie,getCookie, getCookieAll } from "@/lib/Cookies";
+import { removeCookie,getCookie, getCookieAll, setCookie } from "@/lib/Cookies";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import CreateModal from "@/components/lobby/CreateModal";
-
+import { useUser } from "@/lib/globalStates";
 const page = () => {
+  const [user,setUser] = useUser(state=>[state.user,state.setUser]);
   const router = useRouter();
   const [createModal ,setCreateModal] = useState(false);
   const [games, setGames] = useState<IGame[]>([]);
@@ -22,26 +23,39 @@ const page = () => {
       
     }
 
+    socket.on("authToken", (userID:string, username:string,gameID:string,token:string,expires:number) => {
+      setUser({username:username,userID:userID,gameID:gameID});
+      console.log('authing in lobby...')
+    });
+
     socket.emit('getGames',(games:IGame[])=>{
-      console.log(games);
       if(games){
         setGames(games);
       }
       
     })
 
-    socket.on('updateLobby',(gameObj)=>{
-      const obj = gameObj as IGame;
-      console.log("UPDATE",obj);
-      setGames((prev)=>{
-        return [...prev,obj]
-      });
+    socket.on('updateLobby',(type:string,gameObj:IGame)=>{
+      if(type === "CREATE"){
+        setGames((prev)=>{
+          return [...prev,gameObj]
+        });
+      }
+      else if(type === "UPDATE"){
+        setGames((prev)=>{
+          const index = prev.findIndex(game=>{return game.gameID === gameObj.gameID});
+          const temp = prev;
+          temp[index] = gameObj;
+          return temp;
+        });
+      }
     })
+
   },[])
 
-  useEffect(()=>{
-    console.log(games);
-  },[games])
+  // useEffect(()=>{
+  //   console.log(games);
+  // },[games])
 
   const toggleModal = ()=>{
     setCreateModal(!createModal);
@@ -57,8 +71,9 @@ const page = () => {
   return <div className="p-3 h-screen flex flex-col relative">
     {createModal&& <CreateModal toggleModal={toggleModal}/>}
     <div className="flex justify-end">
-      <div className="bg-bgGray rounded-md p-2 cursor-pointer" onClick={logOff}>
+      <div className="bg-bgGray rounded-md p-2 cursor-pointer flex" onClick={logOff}>
         <FaUserAlt size={28}/>
+        <div>{user.username} {user.gameID}</div>
       </div>  
     </div>
     <div className="flex justify-center pt-10">
@@ -68,7 +83,7 @@ const page = () => {
     </div>
     <div>
       {games.map((game,index)=>{
-        return <GameCard key={index} gameID={game.gameID} roomNumber={++index} gameTime={game.gameTime} players={game.players}/>
+        return <GameCard key={index} gameID={game.gameID} roomNumber={++index} gameTime={game.gameTime} maxPlayers={game.maxPlayers} players={game.players}/>
       })}
     </div>
   </div>;

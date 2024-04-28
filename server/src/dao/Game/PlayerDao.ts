@@ -14,10 +14,10 @@ export class PlayerDao implements IPlayer {
       silver: number;
   }
 
-  constructor(id:string,username:string, gems:[string, string, string, string, string, string, string, string, string, string]){
+  constructor(id:string,username:string){
     this.id = id;
     this.username = username;
-    this.gems = gems;
+    this.gems = ['','','','','','','','','',''];
     this.activeCards = TradeCardsJSON.slice(0,2) as ITradeCard[];
     this.restCards = [] as ITradeCard[];
     this.pointCards = [] as IPointCard[];

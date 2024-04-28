@@ -8,7 +8,6 @@ import {v4 as uuid} from "uuid";
 import { encrypt, decrypt } from '../lib/encrypt';
 // Define the middleware function to validate user
 export function validateUser(socket: Socket, next: (err?: ExtendedError) => void) { 
-    console.log(getAllPlayers());
     const id = socket.handshake.auth?.id;
     if(id){
       //TODO: add expiration check
@@ -20,7 +19,6 @@ export function validateUser(socket: Socket, next: (err?: ExtendedError) => void
       }
       
     }else{
-      console.log('creating id')
       const id = uuid();
       const username = socket.handshake.auth?.username as string;
       const encrypted = encrypt(id);

@@ -38,6 +38,7 @@ export class GameDao implements IGameDao {
 	public readonly gameID: string;
   public readonly gameTime: number;
 	public readonly turn: number;
+  public readonly maxPlayers: number;
 	public readonly tradeCards: ITradeCard[];
 	public readonly pointCards: IPointCard[];
 	public readonly players: IPlayer[];
@@ -46,7 +47,8 @@ export class GameDao implements IGameDao {
 		this.gameID = uuidv4();
     this.gameTime = gameTime;
 		this.turn = 0;
-		this.players = new Array<IPlayer>(playerCount);
+    this.maxPlayers = playerCount;
+		this.players = [];
 		this.tradeCards = shuffleTrade(TradeCardsJSON.splice(2) as ITradeCard[]);
 		this.pointCards = shufflePoint(PointCardsJSON as IPointCard[]);
 	}
@@ -55,12 +57,26 @@ export class GameDao implements IGameDao {
 		return [this.gameID, this.turn, this.players, this.tradeCards, this.pointCards];
 	}
 
-	public addPlayer(player: IPlayer): void {
-    for(let i = 0; i < this.players.length; i++){
-      if(this.players[i] === undefined){
-        this.players[i] = player;
-        break;
-      }
+	public addPlayer(player: IPlayer) {
+    if(this.players.length === 0){
+      player.gems = ['Y','Y','Y','','','','','','',''];
+      this.players.push(player);
+    }
+    else if(this.players.length == 1){
+      player.gems = ['Y','Y','Y','Y','','','','','',''];
+      this.players.push(player);
+    }
+    else if(this.players.length == 2){
+      player.gems = ['Y','Y','Y','Y','','','','','',''];
+      this.players.push(player);
+    }
+    else if(this.players.length == 3){
+      player.gems = ['Y','Y','Y','G','','','','','',''];
+      this.players.push(player);
+    }
+    else if(this.players.length == 4){
+      player.gems = ['Y','Y','Y','G','','','','','',''];
+      this.players.push(player);
     }
 	}
 

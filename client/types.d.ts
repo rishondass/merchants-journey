@@ -29,5 +29,5 @@ type IGame = {
 	tradeCards: ITradeCard[];
 	pointCards: IPointCard[];
 	players: IPlayer[];
-
+  maxPlayers:number;
 };
