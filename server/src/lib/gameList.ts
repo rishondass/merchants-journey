@@ -27,3 +27,12 @@ export const updateGame = (game:IGameDao)=>{
   gameList[game.gameID] = {game:game}
 }
 
+export const deleteGame = (gameID:string)=>{
+  try{
+    delete gameList[gameID];
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+

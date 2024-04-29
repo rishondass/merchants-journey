@@ -35,7 +35,7 @@ const page = () => {
       
     })
 
-    socket.on('updateLobby',(type:string,gameObj:IGame)=>{
+    socket.on('updateLobby',(type:string,gameObj:IGame, gameID: string)=>{
       if(type === "CREATE"){
         setGames((prev)=>{
           return [...prev,gameObj]
@@ -49,6 +49,12 @@ const page = () => {
           return temp;
         });
       }
+      else if(type === "DELETE"){
+        setGames((prev)=>{
+          const temp = prev.filter(game=>{return game.gameID !== gameID});
+          return temp;
+        })
+      }
     })
 
   },[])
@@ -61,10 +67,10 @@ const page = () => {
     setCreateModal(!createModal);
   }
 
-  const logOff = ()=>{
+  const logOff = async()=>{
     socket.emit("logOff");
     socket.close();
-    removeCookie('tok'); 
+    await removeCookie('tok'); 
     router.push("/");
   }
 

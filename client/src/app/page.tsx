@@ -26,9 +26,11 @@ export default function Home() {
 
     socket.once("authToken", (userID:string, username:string,gameID:string,token:string,expires:number) => {
       setUser({username:username,userID:userID,gameID:gameID});
-      setCookie("tok",token,expires);
-      router.push("/lobby");
-      console.log('authing...')
+      setCookie("tok",token,expires).then(()=>{
+        router.push("/lobby");
+        console.log('authing...')
+      });
+      
     });
 
 

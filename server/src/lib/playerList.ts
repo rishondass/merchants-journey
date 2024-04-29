@@ -22,10 +22,14 @@ function getAllPlayers(){
   return playerList;
 }
 
-function addGame(id:string,gameID: string){
+function addGameToPlayer(id:string,gameID: string){
   playerList[id] = {...playerList[id],gameID: gameID}
 }
 
-export {addGame,addPlayer, removePlayer, getPlayer, getAllPlayers };
+function removeGameFromPlayer(id:string){
+  playerList[id] = {...playerList[id],gameID: undefined}
+}
+
+export {addGameToPlayer,removeGameFromPlayer,addPlayer, removePlayer, getPlayer, getAllPlayers };
 
 

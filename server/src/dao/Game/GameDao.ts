@@ -7,7 +7,7 @@ import PointCardsJSON from '../../../json/PointCards.json';
 export type IGameDao = {
 	fields: () => Array<string | number | ITradeCard[] | IPointCard[] | IPlayer[]>;
 	addPlayer: (player: IPlayer) => void;
-	removePlayer: (player: IPlayer) => void;
+	removePlayer: (playerID: string) => void;
 } & IGame;
 
 const shuffleTrade = (array:ITradeCard[]) =>{
@@ -42,11 +42,13 @@ export class GameDao implements IGameDao {
 	public readonly tradeCards: ITradeCard[];
 	public readonly pointCards: IPointCard[];
 	public readonly players: IPlayer[];
+  public isActive:boolean;
 
 	constructor(playerCount: number,gameTime:number) {
 		this.gameID = uuidv4();
     this.gameTime = gameTime;
 		this.turn = 0;
+    this.isActive = false;
     this.maxPlayers = playerCount;
 		this.players = [];
 		this.tradeCards = shuffleTrade(TradeCardsJSON.splice(2) as ITradeCard[]);
@@ -80,7 +82,11 @@ export class GameDao implements IGameDao {
     }
 	}
 
-	public removePlayer(player: IPlayer): void {
-		console.log('test');
+	public removePlayer(playerID:string): void {
+		for(let i=0;i<this.players.length;i++){
+      if(this.players[i].id === playerID){
+        this.players.splice(i,1);
+      }
+    }
 	}
 }

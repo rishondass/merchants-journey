@@ -3,6 +3,7 @@
 import {type Socket} from 'socket.io';
 import {type ExtendedError} from 'socket.io/dist/namespace';
 import {addPlayer,getAllPlayers,getPlayer} from '../lib/playerList';
+import { getGame } from '../lib/gameList';
 import { playerAuth } from '../lib/types';
 import {v4 as uuid} from "uuid";
 import { encrypt, decrypt } from '../lib/encrypt';
@@ -14,6 +15,10 @@ export function validateUser(socket: Socket, next: (err?: ExtendedError) => void
       const decrypted = decrypt(id);
       const player = getPlayer(decrypted)
       if(player){
+        if(!(player.gameID&&getGame(player.gameID))){
+          player.gameID = undefined;
+        }
+        
         socket.data.user= {...player};
         next();
       }

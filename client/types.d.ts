@@ -30,4 +30,5 @@ type IGame = {
 	pointCards: IPointCard[];
 	players: IPlayer[];
   maxPlayers:number;
+  isActive: boolean;
 };
