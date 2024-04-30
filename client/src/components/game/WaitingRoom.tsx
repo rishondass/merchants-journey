@@ -40,6 +40,11 @@ const WaitingRoom = ({gameObj}:Props) => {
     socket.on('gameClose',()=>{
       router.push('/lobby');
       setUser({...user, gameID:undefined})
+    });
+
+    return (()=>{
+      socket.off('updateGameDetails');
+      socket.off('gameClose');
     })
 
   },[])

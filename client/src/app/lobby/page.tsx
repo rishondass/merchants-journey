@@ -59,6 +59,11 @@ const page = () => {
       }
     })
 
+    return (()=>{
+      socket.off("authToken");
+      socket.off("updateLobby");
+    })
+
   },[])
 
   // useEffect(()=>{
