@@ -35,7 +35,7 @@ const page = () => {
       
     })
 
-    socket.on('updateLobby',(type:string,gameObj:IGame, gameID: string)=>{
+    socket.on('updateLobby',(type:string,gameObj:IGame)=>{
       if(type === "CREATE"){
         setGames((prev)=>{
           return [...prev,gameObj]
@@ -50,8 +50,10 @@ const page = () => {
         });
       }
       else if(type === "DELETE"){
+        console.log(`Deleting game...`);
+        console.log(gameObj);
         setGames((prev)=>{
-          const temp = prev.filter(game=>{return game.gameID !== gameID});
+          const temp = prev.filter(game=>{return game.gameID !== gameObj.gameID});
           return temp;
         })
       }

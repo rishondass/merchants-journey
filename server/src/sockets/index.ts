@@ -1,7 +1,7 @@
 import {type Socket} from 'socket.io';
 import { GameDao, PlayerDao } from "../dao";
 import {getPlayer,getAllPlayers,removePlayer, addGameToPlayer, removeGameFromPlayer} from '../lib/playerList';
-import {addGame as addGameObj, getGames, getGame, updateGame, deleteGame} from "../lib/gameList";
+import {addGame as addGameObj, getGamesDetails,getGameDetails, getGame, updateGame, deleteGame} from "../lib/gameList";
 import {io} from "../index"
 const connection = (socket: Socket) => {
 	//console.log(socket.data.user);
@@ -32,18 +32,20 @@ const connection = (socket: Socket) => {
   })
 
   socket.on('deleteGame',(gameID:string,cb)=>{
-    if(deleteGame(gameID)){
+    const game = deleteGame(gameID);
+    if(game){
       socket.leave(gameID);
       io.to(gameID).emit('gameClose');
+      io.emit('updateLobby','DELETE', game);
       cb({status:200,msg:"success"})
     }else{
       cb({status:500, msg: "couldn't delete game"})
     }
   })
 
-  //FIXME:Don't send all game data to lobby
+  
   socket.on('getGames',(cb)=>{
-    const games = getGames();
+    const games = getGamesDetails();
     cb(games);
   })
 
@@ -51,6 +53,16 @@ const connection = (socket: Socket) => {
     
     const game = getGame(gameID);
     console.log(game,gameID);
+    if(game){
+      cb(game);
+    }else{
+      cb(null)
+    }
+  })
+
+  socket.on('getGameDetails',(gameID, cb)=>{
+    
+    const game = getGameDetails(gameID);
     if(game){
       cb(game);
     }else{
@@ -68,8 +80,20 @@ const connection = (socket: Socket) => {
         addGameToPlayer(socket.data.user.id, game.gameID);
         socket.data.user.gameID = game.gameID;
         updateGame(game);
-        io.emit('updateLobby','UPDATE', game);
-        io.to(game.gameID).emit('updateGame',game);
+        io.emit('updateLobby','UPDATE', {
+          gameID:game.gameID,
+          gameTime:game.gameTime,
+          players:game.players,
+          maxPlayers:game.maxPlayers,
+          isActive:game.isActive,
+        });
+        io.to(game.gameID).emit('updateGameDetails',{
+          gameID: game.gameID,
+          gameTime: game.gameTime,
+          players: game.players,
+          maxPlayers: game.maxPlayers,
+          isActive: game.isActive,
+        });
         cb({code:200, msg:"successfully joined"})
       }else{
         cb({code:400, msg:"game is already full"})
@@ -88,8 +112,20 @@ const connection = (socket: Socket) => {
       removeGameFromPlayer(socket.data.user.id);
       socket.data.user.gameID = "";
       updateGame(game);
-      io.emit('updateLobby','UPDATE', game);
-      io.to(game.gameID).emit('updateGame',game);
+      io.emit('updateLobby','UPDATE', {
+        gameID: game.gameID,
+        gameTime: game.gameTime,
+        players: game.players,
+        maxPlayers: game.maxPlayers,
+        isActive: game.isActive,
+      });
+      io.to(game.gameID).emit('updateGameDetails',{
+        gameID: game.gameID,
+        gameTime: game.gameTime,
+        players: game.players,
+        maxPlayers: game.maxPlayers,
+        isActive: game.isActive,
+      });
       cb({code:200, msg:"successfully left"})
     }else{
       cb({code:400, msg:"couldn't leave the game"})

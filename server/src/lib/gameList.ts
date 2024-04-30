@@ -1,5 +1,5 @@
 import { type IGameDao} from "../dao"
-import { IPlayer } from "../models/game";
+import { IGame, IPlayer } from "../models/game";
 const gameList:Record<string, {game: IGameDao}> = {}
 
 export const addGame = (game:IGameDao)=>{
@@ -7,12 +7,34 @@ export const addGame = (game:IGameDao)=>{
 }
 
 
-//TODO:Change to getGamesSimple 
-export const getGames = ()=>{
+export const getGamesDetails = ()=>{
   const base =  Object.values(gameList) ;
-  const games:IGameDao[] = [];
-  base.forEach(game => games.push(game.game));
+  const games:any[] = [];
+  base.forEach(game => games.push(
+    {
+      gameID: game.game.gameID,
+      gameTime: game.game.gameTime,
+      players: game.game.players,
+      maxPlayers: game.game.maxPlayers,
+      isActive: game.game.isActive,
+    }
+  ));
   return games;
+}
+
+export const getGameDetails = (gameID:string)=>{
+  const game = gameList[gameID];
+  if(game){
+    return {
+      gameID: game.game.gameID,
+      gameTime: game.game.gameTime,
+      players: game.game.players,
+      maxPlayers: game.game.maxPlayers,
+      isActive: game.game.isActive,
+    };
+  }else{
+    return null;
+  }
 }
 
 export const getGame = (gameID:string) =>{
@@ -29,10 +51,11 @@ export const updateGame = (game:IGameDao)=>{
 
 export const deleteGame = (gameID:string)=>{
   try{
+    const game = gameList[gameID]
     delete gameList[gameID];
-    return true;
+    return game.game;
   }catch(e){
-    return false;
+    return null;
   }
 }
 

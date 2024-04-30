@@ -25,9 +25,9 @@ type IPlayer = {
 type IGame = {
 	gameID: string;
   gameTime: number;
-	turn: number;
-	tradeCards: ITradeCard[];
-	pointCards: IPointCard[];
+	turn?: number;
+	tradeCards?: ITradeCard[];
+	pointCards?: IPointCard[];
 	players: IPlayer[];
   maxPlayers:number;
   isActive: boolean;
