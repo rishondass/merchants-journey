@@ -47,6 +47,7 @@ export const getGame = (gameID:string) =>{
 
 export const updateGame = (game:IGameDao)=>{
   gameList[game.gameID] = {game:game}
+  return gameList[game.gameID].game;
 }
 
 export const deleteGame = (gameID:string)=>{

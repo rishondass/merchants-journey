@@ -10,12 +10,13 @@ type ITradeCard = {
 	cardType: string;
 	from: string[];
 	to: string[];
+  extraGems: string[];
 };
 
 type IPlayer = {
 	id: string;
   username: string;
-	gems: [string, string, string, string, string, string, string, string, string, string];
+	gems: string[];
 	activeCards: ITradeCard[];
 	restCards: ITradeCard[];
   pointCards: IPointCard[];

@@ -11,6 +11,7 @@ export type ITradeCard = {
 	cardType: string;
 	from: string[];
 	to: string[];
+  extraGems: string[];
 };
 
 

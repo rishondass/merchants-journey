@@ -1,5 +1,5 @@
 import {type Socket} from 'socket.io';
-import { GameDao, PlayerDao } from "../dao";
+import { GameDao, IGameDao, PlayerDao } from "../dao";
 import {getPlayer,getAllPlayers,removePlayer, addGameToPlayer, removeGameFromPlayer} from '../lib/playerList';
 import {addGame as addGameObj, getGamesDetails,getGameDetails, getGame, updateGame, deleteGame} from "../lib/gameList";
 import {io} from "../index"
@@ -129,6 +129,36 @@ const connection = (socket: Socket) => {
       cb({code:200, msg:"successfully left"})
     }else{
       cb({code:400, msg:"couldn't leave the game"})
+    }
+  })
+
+  socket.on('startGameSignal',(gameID:string)=>{
+    const game = getGame(gameID);
+    if(game){
+      game.isActive = true;
+      updateGame(game);
+    }
+    socket.broadcast.to(gameID).emit('startGame');
+    console.log('starting game updates in 3 sec');
+    setTimeout(()=>{
+      setInterval(()=>{
+        const game = getGame(gameID);
+        if(game){
+          game.gameTime -= 1;
+          updateGame(game);
+          io.to(gameID).emit('updateGameTimer',game.gameTime);
+        }
+        
+        
+      },1000)
+    },3000)
+  })
+
+  socket.on('endGameTurn',(gameObj:IGameDao)=>{
+    const game = getGame(gameObj.gameID);
+    if(game){
+      const updatedGame = updateGame({...game,...gameObj, turn: game.turn+=1})
+      io.to(gameObj.gameID).emit("updateGame",updatedGame);
     }
   })
 

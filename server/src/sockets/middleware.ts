@@ -17,8 +17,10 @@ export function validateUser(socket: Socket, next: (err?: ExtendedError) => void
       if(player){
         if(!(player.gameID&&getGame(player.gameID))){
           player.gameID = undefined;
+        }else{
+          socket.join(player.gameID);
         }
-        
+        console.log(player);
         socket.data.user= {...player};
         next();
       }

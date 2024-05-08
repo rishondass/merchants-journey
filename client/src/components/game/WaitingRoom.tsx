@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import {useState, useEffect} from "react";
 import { useUser } from "@/lib/globalStates";
 import { getCookie } from "@/lib/Cookies";
+import Game from "@/components/game/Game"
 import socket from "@/socket";
 
 type Props = {
@@ -13,6 +14,7 @@ const WaitingRoom = ({gameObj}:Props) => {
   const router = useRouter();
   const [user,setUser] = useUser(state=>[state.user,state.setUser]);
   const [game, setGame] = useState<IGame | undefined>(gameObj);
+  const [startGame, setStartGame] = useState(false);
   useEffect(()=>{
 
     // socket.emit('getGame',params.gameID,(gameObj:IGame|null)=>{
@@ -41,6 +43,10 @@ const WaitingRoom = ({gameObj}:Props) => {
       router.push('/lobby');
       setUser({...user, gameID:undefined})
     });
+
+    socket.on('startGame',()=>{
+      setStartGame(true);
+    })
 
     return (()=>{
       socket.off('updateGameDetails');
@@ -81,11 +87,12 @@ const WaitingRoom = ({gameObj}:Props) => {
   }
 
   const start = ()=>{
-
+    socket.emit('startGameSignal', game?.gameID);
+    setStartGame(true);
   }
 
   
-  return <div className="w-full h-screen bg-blue-600 text-white flex flex-col justify-center items-center">
+  return <>{(startGame||gameObj?.isActive)?<Game gameID={game?.gameID ?? ""} gameTimeInit={gameObj?.gameTime ?? 0}/>:<div className="w-full h-screen bg-blue-600 text-white flex flex-col justify-center items-center">
     <div className="font-bold text-3xl p-10">Waiting For Players...</div>
     
     
@@ -98,13 +105,15 @@ const WaitingRoom = ({gameObj}:Props) => {
     </div>
     <div className="flex gap-4 pt-10">
       <button className="bg-rose-500 p-4 rounded-md w-24" onClick={leave}>Leave</button>
-      {game&&game.players[0].id === user.userID&&game.players.length === game.maxPlayers && 
+      {game&&game.players[0].id === user.userID&&game.players.length === (game.maxPlayers-1) && 
         <button className="bg-emerald-400 rounded-md p-4 w-24" onClick={start}>start</button>
       }
       
     </div>
     
     </div>
+  }
+  </>
 }
 
 export default WaitingRoom

@@ -18,6 +18,20 @@ const config: Config = {
       },
       colors:{
         "bgGray": "#EEEEEE"
+      },
+      dropShadow:{
+        "whiteBr":[
+          '2px  0px 0px white',
+          '-2px  0px 0px white',
+          '0px  2px 0px white',
+          '0px -2px 0px white'
+        ],
+        'indigoBr':[
+          '2px  0px 0px #6366f1',
+          '-2px  0px 0px #6366f1',
+          '0px  2px 0px #6366f1',
+          '0px -2px 0px #6366f1'
+        ]
       }
 
     },
