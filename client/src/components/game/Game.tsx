@@ -66,10 +66,14 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       setPlayerActiveCards(player?.activeCards);
       setPlayerRestCards(player?.restCards);
       setPlayerPointCards(player?.pointCards);
-      setOpenPointCards(game.pointCards?.slice(0,6));
+      setOpenPointCards(game.pointCards);
       setOpenTradeCards(game.tradeCards);
     }
   },[game]);
+
+  useEffect(()=>{
+    console.log(gems);
+  },[gems])
 
 
 
@@ -102,6 +106,53 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       setOpenTradeCards(tempTradeCards);
     }
     
+  }
+
+
+  const getGemsCount = (gems:string[])=>{
+    const counter = {Y:0,G:0,B:0,R:0};
+    
+    gems.forEach(gem=>{
+      if(gem==="Y"){
+        counter.Y += 1;
+      }
+      else if(gem==="G"){
+        counter.G += 1;
+      }
+      else if(gem==="B"){
+        counter.B += 1;
+      }
+      else if(gem==="R"){
+        counter.R += 1;
+      }
+    });
+
+    return counter;
+  }
+
+  const removeGemsFromPlayer = (items:string[])=>{
+    if(gems){
+      const temp = [...gems];
+      items.forEach(item=>{
+        const index = temp.findIndex(rec=>{return rec===item});
+        temp[index] = "";
+      });
+      setGems(temp);
+      
+    }
+    
+  }
+
+  const movePointsToPlayer = (source:number,destination:number)=>{
+    if(openPointCards && playerPointCards){
+      const tempPointCards = [...openPointCards];
+      const [removed] = tempPointCards.splice(source,1);
+      const tempPlayerPoints = [...playerPointCards];
+      tempPlayerPoints.splice(destination,0,removed);
+
+      setPlayerPointCards(tempPlayerPoints);
+      setOpenPointCards(tempPointCards);
+    }
   }
 
   const closeGemsModal = ()=>{
@@ -187,7 +238,18 @@ const Game = ({gameTimeInit,gameID}:Props) => {
 
     //move a card from points to player points
     if(type=="pointCard" && source.droppableId==="pointCards" && destination.droppableId==="pointSpace"){
-      setPlayerPointCards(moveTo(openPointCards,playerPointCards,source.index,destination.index));
+      if(gems && openPointCards){
+        const p = getGemsCount(gems);
+        const c = getGemsCount(openPointCards[source.index].gems);
+        
+        if(p.Y >= c.Y && p.B >= c.B && p.G >= c.G && p.R >= c.R){
+          removeGemsFromPlayer(openPointCards[source.index].gems);
+          movePointsToPlayer(source.index,destination.index);
+        }
+        
+      }
+      
+      
     } 
 
   }
@@ -211,7 +273,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
           
           <PointSpace playerPointCards={playerPointCards}/>
           <div className="bg-green-100 grow flex flex-col px-10 justify-center">
-            <PointsCard openPointCards={openPointCards}/>
+            <PointsCard openPointCards={openPointCards?.slice(0,6)}/>
             <TradeCards openTradeCards={openTradeCards?.slice(0,7)}/>
           </div>
           <div className="bg-slate-400 w-60">

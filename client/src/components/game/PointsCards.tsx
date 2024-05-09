@@ -22,7 +22,7 @@ const PointsCards = ({ openPointCards }: Props) => {
                 <Draggable
                   draggableId={"pointCard" + index}
                   index={index}
-                  key={index}
+                  key={item.cardID}
                 >
                   {(provided) => {
                     return (

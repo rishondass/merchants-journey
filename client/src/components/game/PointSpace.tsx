@@ -19,7 +19,7 @@ const PointSpace = ({playerPointCards}:Props) => {
                 {...provided.dragHandleProps}
                 {...provided.draggableProps}
                 >
-                  <Card type='points' cardID={item.cardID}/>
+                  <Card type='point' cardID={item.cardID} pointCard={item}/>
                 </div>
               }}
             </Draggable>
