@@ -22,7 +22,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   const [game, setGame] = useState<IGame | null>();
   const [gameTime, setGameTime] = useState(gameTimeInit);
   const [isPlayerTurn, setIsPlayerTurn] = useState(false);
-  const [playerActiveCards, setPlayerActiveCards] = useState<ITradeCard[] | undefined>([]);
+  const [playerActiveCards, setPlayerActiveCards] = useState<ITradeCard[] | undefined>();
   const [playerRestCards, setPlayerRestCards] = useState<ITradeCard[] | undefined>([]);
   const [playerPointCards, setPlayerPointCards] = useState<IPointCard[] | undefined>([]);
 
@@ -33,7 +33,8 @@ const Game = ({gameTimeInit,gameID}:Props) => {
 
   const [gemsModal, setGemsModal] = useState(0);
 
-  const [currentCard, setCurrentCard] = useState({source:-1, destination:-1})
+  const [currentCard, setCurrentCard] = useState({source:-1, destination:-1});
+  
 
 
   useEffect(()=>{
@@ -56,7 +57,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   },[]);
 
   useEffect(()=>{
-    console.log(game);
+    //console.log(game);
     if(game){
       const player = game?.players.find(p=> p.id === user.userID);
       if(player){
@@ -95,13 +96,20 @@ const Game = ({gameTimeInit,gameID}:Props) => {
     return temp;
   }
 
-  const moveTradeToActive = (source:number,destination:number)=>{
+  const moveTradeToActive = (source:number,destination:number,gemsInit:string[])=>{
     if(openTradeCards && playerActiveCards){
       const tempTradeCards = [...openTradeCards];
       const [removed] = tempTradeCards?.splice(source,1);
       const tempActiveCards = [...playerActiveCards];
       tempActiveCards.splice(destination,0,removed);
 
+      console.log(gemsInit);
+      console.log(removed.extraGems);
+
+    
+
+
+      addGemsToPlayer(gemsInit,removed.extraGems);
       setPlayerActiveCards(tempActiveCards);
       setOpenTradeCards(tempTradeCards);
     }
@@ -137,10 +145,53 @@ const Game = ({gameTimeInit,gameID}:Props) => {
         const index = temp.findIndex(rec=>{return rec===item});
         temp[index] = "";
       });
-      setGems(temp);
-      
+      return temp;
     }
     
+  }
+
+  const addGemsToPlayer = (prevGems:string[],items:string[])=>{
+    const filteredGems = prevGems?.filter(gem=>{return gem !== ""});
+    
+    
+
+    if(filteredGems&&(filteredGems.length + items.length) > 10){
+      //TODO:Discard extra gems system here
+      console.log("TOO MANY GEMS: " + (filteredGems.length + items.length));
+    }else{
+      if(gems){
+        const temp = [...prevGems];
+        const tempItems = [...items];
+        temp.forEach((rec,i)=>{
+          if(rec===""){
+            temp[i] = tempItems.shift() ?? "";
+          } 
+        });
+        console.log('adding gems', temp);
+        setGems(temp);
+      }
+    }
+
+    
+  }
+
+  
+
+  const tradeGems = (from:string[],to:string[])=>{
+    if(gems){
+      const fromG = getGemsCount(from);
+      const playerG = getGemsCount(gems);
+
+      if(playerG.Y >= fromG.Y && playerG.G >= fromG.G && playerG.B >= fromG.B && playerG.R >= fromG.R){
+        const tempGems = removeGemsFromPlayer(from);
+        if(tempGems)
+          addGemsToPlayer(tempGems,to);
+      }
+
+
+    }
+    
+
   }
 
   const movePointsToPlayer = (source:number,destination:number)=>{
@@ -160,7 +211,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   }
 
   const tradeToActiveConfirm = (gemSel:boolean[],count:number)=>{
-    if(gems){
+    if(gems && openTradeCards){
       const remainGems:string[] = [];
       const removedGems:string[] = [];
       gemSel.forEach((gem,i)=>{
@@ -174,6 +225,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       // console.log(remainGems);
       // console.log(removedGems.length);
 
+
       let temp = [...openTradeCards];
       for(let i = 0; i < removedGems.length; i++){
         console.log(removedGems.length)
@@ -182,9 +234,9 @@ const Game = ({gameTimeInit,gameID}:Props) => {
 
 
 
-      setGems(remainGems);
+      
       setOpenTradeCards(temp);
-      moveTradeToActive(currentCard.source,currentCard.destination);
+      moveTradeToActive(currentCard.source,currentCard.destination,remainGems);
       setGemsModal(0);
       setCurrentCard({source:-1,destination:-1});
     }
@@ -192,8 +244,8 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   }
 
   const tradeToActive = (source: DraggableLocation,destination: DraggableLocation)=>{
-    if(source.index===0){
-      moveTradeToActive(source.index,destination.index);
+    if(source.index===0 && gems){
+      moveTradeToActive(source.index,destination.index,gems);
     }else{
         let count = 0;
         gems?.forEach(gem=>{
@@ -209,35 +261,78 @@ const Game = ({gameTimeInit,gameID}:Props) => {
     
   }
 
+
+  const moveActiveToRest = (source:number,destination:number)=>{
+    
+    if(playerRestCards && playerActiveCards){
+      
+      const tempActiveCards = [...playerActiveCards];
+      const [removed] = tempActiveCards?.splice(source,1);
+      const tempRestCards = [...playerRestCards];
+      tempRestCards.splice(destination,0,removed);
+
+      setPlayerActiveCards(tempActiveCards);
+      setPlayerRestCards(tempRestCards);
+    }
+  }
+  
+  
+  const activeToRest = (source: DraggableLocation,destination: DraggableLocation)=>{
+    
+    if(playerActiveCards){
+      const card = playerActiveCards[source.index];
+    
+      if(card.cardType === "Obtain"){
+        addGemsToPlayer(gems ?? [],card.to);
+        moveActiveToRest(source.index,destination.index);
+      }
+      else if(card.cardType === "Trade"){
+        console.log('trade')
+        tradeGems(card.from,card.to);
+        moveActiveToRest(source.index,destination.index);
+      }
+      else if(card.cardType === "Upgrade"){
+        //TODO:add trades to upgrade
+      }
+    }
+    
+  }
+
   const onDragEnd = (result:DropResult)=>{
     const {destination, source, type} = result;
-    
     if(!destination){
       return;
     }
-
+    console.log(type,source,destination)
     //dropped in same position
     if(destination.droppableId === source.droppableId &&
       destination.index === source.index
     ){
+      console.log('dropped in the same position');
       return;
     }
 
-    //moving a card from active to rest
+    //reordering cards in active slot
     if(type==="card" && source.droppableId === "activeCards" && destination.droppableId === source.droppableId){
-      setPlayerActiveCards(reorder(playerActiveCards,source.index,destination.index));
+      //FIXME: can't reorder cards
+      // setPlayerActiveCards(reorder(playerActiveCards,source.index,destination.index));
     }
-    else if(type==="card" && source.droppableId==="activeCards" && destination.droppableId==="usedCards"){
-      setPlayerRestCards(moveTo(playerActiveCards,playerRestCards,source.index,destination.index));
+    
+    //moving a card from active to rest
+    if(type==="card" && source.droppableId==="activeCards" && destination.droppableId==="usedCards"){
+      console.log('moving a card from active to rest');
+      activeToRest(source,destination);
     }
 
     //moving a card from tradeCards to active cards
     if(type==="card"&& source.droppableId==="tradeCards" && destination.droppableId==="activeCards"){
+      console.log('moving a card from tradeCards to active cards');
       tradeToActive(source,destination);
     }
 
     //move a card from points to player points
     if(type=="pointCard" && source.droppableId==="pointCards" && destination.droppableId==="pointSpace"){
+      console.log('move a card from points to player points');
       if(gems && openPointCards){
         const p = getGemsCount(gems);
         const c = getGemsCount(openPointCards[source.index].gems);

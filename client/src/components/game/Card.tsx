@@ -61,6 +61,18 @@ const Card = ({type, cardID,pointCard,tradeCard}:Props) => {
                   return <Image className="shadow-md" src={"/gems/red.svg"} alt={"red-gem"} width={16} height={16}/>
               })}
           </div>
+          <div className="absolute top-1/2 right-1/2">
+            {tradeCard?.extraGems.map(gem=>{
+              if(gem === "Y")
+                return <Image className="shadow-md" src={"/gems/yellow.svg"} alt={"yellow-gem"} width={16} height={16}/>
+              else if(gem === "G")
+                return <Image className="shadow-md" src={"/gems/green.svg"} alt={"green-gem"} width={16} height={16}/>
+              else if(gem === "B")
+                return <Image className="shadow-md" src={"/gems/blue.svg"} alt={"blue-gem"} width={16} height={16}/>
+              else if(gem === "R")
+                return <Image className="shadow-md" src={"/gems/red.svg"} alt={"red-gem"} width={16} height={16}/>
+            })}
+          </div>
         </div>
       }
       

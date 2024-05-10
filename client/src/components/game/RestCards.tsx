@@ -22,7 +22,7 @@ const RestCards = ({playerRestCards}:Props) => {
                         {...provided.dragHandleProps}
                         className="px-3"
                       >
-                        <Card type="rest" cardID={item.cardID}/>
+                        <Card type="trade" cardID={item.cardID} tradeCard={item}/>
 
                       </div>
                       

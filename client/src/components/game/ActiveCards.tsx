@@ -13,7 +13,7 @@ const ActiveCards = ({playerActiveCards}:Props) => {
               ref={provided.innerRef}
               className="bg-[#CDE8F0] w-11/12 rounded-md h-40 flex py-2 overflow-x-auto">
                 {playerActiveCards?.map((item,index) => (
-                  <Draggable key={index} draggableId={"activeSpace"+index} index={index}>
+                  <Draggable key={item.cardID} draggableId={"activeSpace"+index} index={index}>
                     {(provided)=>{
                       return <div
                         ref={provided.innerRef}
