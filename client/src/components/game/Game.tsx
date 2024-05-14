@@ -12,6 +12,7 @@ import RestCards from "./RestCards";
 import ActiveCards from "./ActiveCards";
 import PlayerCard from "./PlayerCard";
 import GemsModal from "./GemsModal";
+import GemsUpgrade from "./GemsUpgrade";
 type Props= {
   gameTimeInit: number;
   gameID: string;
@@ -32,6 +33,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   const [openTradeCards, setOpenTradeCards] = useState<ITradeCard[] | undefined>([]);
 
   const [gemsModal, setGemsModal] = useState(0);
+  const [upgradeModal, setUpgradeModal] = useState(false);
 
   const [currentCard, setCurrentCard] = useState({source:-1, destination:-1});
   
@@ -182,10 +184,18 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       const fromG = getGemsCount(from);
       const playerG = getGemsCount(gems);
 
+      console.log(fromG, playerG);
+
       if(playerG.Y >= fromG.Y && playerG.G >= fromG.G && playerG.B >= fromG.B && playerG.R >= fromG.R){
         const tempGems = removeGemsFromPlayer(from);
-        if(tempGems)
+        if(tempGems){
           addGemsToPlayer(tempGems,to);
+          return true;
+        }
+          
+
+      }else{
+        return false;
       }
 
 
@@ -208,6 +218,10 @@ const Game = ({gameTimeInit,gameID}:Props) => {
 
   const closeGemsModal = ()=>{
     setGemsModal(0);
+  };
+  
+  const toggleUpgradeModal = ()=>{
+    setUpgradeModal(!upgradeModal);
   }
 
   const tradeToActiveConfirm = (gemSel:boolean[],count:number)=>{
@@ -241,6 +255,11 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       setCurrentCard({source:-1,destination:-1});
     }
     
+  }
+
+  const confirmUpgrade = (newGems: string[])=>{
+    const temp = [...newGems];
+    setGems(temp);
   }
 
   const tradeToActive = (source: DraggableLocation,destination: DraggableLocation)=>{
@@ -288,14 +307,22 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       }
       else if(card.cardType === "Trade"){
         console.log('trade')
-        tradeGems(card.from,card.to);
-        moveActiveToRest(source.index,destination.index);
+        if(tradeGems(card.from,card.to))
+          moveActiveToRest(source.index,destination.index);
       }
       else if(card.cardType === "Upgrade"){
-        //TODO:add trades to upgrade
+        toggleUpgradeModal();
+        moveActiveToRest(source.index,destination.index);
       }
     }
     
+  }
+
+  const restToActive = ()=>{
+    if(isPlayerTurn && playerActiveCards && playerRestCards){
+      setPlayerActiveCards([...playerActiveCards, ...playerRestCards]);
+      setPlayerRestCards([]);
+    }
   }
 
   const onDragEnd = (result:DropResult)=>{
@@ -350,6 +377,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   }
 
   return <>
+    {upgradeModal&& createPortal(<GemsUpgrade confirmFn={confirmUpgrade} count={2} gems={gems} closeModal={toggleUpgradeModal}/>,document.body)}
     {gemsModal>0&&createPortal(<GemsModal gems={gems} count={gemsModal} closeModal={closeGemsModal} confirmFn={tradeToActiveConfirm}/>,document.body)}
     <div className="flex flex-col h-screen p-3">
       <div className={"flex justify-center"}>
@@ -382,7 +410,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
           </div>
         </div>
         <div className="flex flex-col gap-3 items-center justify-center">
-          <RestCards playerRestCards={playerRestCards}/>
+          <RestCards playerRestCards={playerRestCards} restToActive={restToActive}/>
           <ActiveCards playerActiveCards={playerActiveCards}/>
 
           
