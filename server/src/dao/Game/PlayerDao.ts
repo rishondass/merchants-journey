@@ -10,7 +10,7 @@ export class PlayerDao implements IPlayer {
   public restCards: ITradeCard[];
   public pointCards: IPointCard[];
   public coins: {
-      copper: number;
+      gold: number;
       silver: number;
   }
 
@@ -21,6 +21,6 @@ export class PlayerDao implements IPlayer {
     this.activeCards = TradeCardsJSON.slice(0,2) as ITradeCard[];
     this.restCards = [] as ITradeCard[];
     this.pointCards = [] as IPointCard[];
-    this.coins = {copper:0,silver:0}
+    this.coins = {gold:0,silver:0}
   }
 }

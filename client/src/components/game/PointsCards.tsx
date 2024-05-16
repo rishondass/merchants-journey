@@ -2,10 +2,12 @@ import React from "react";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import Card from "./Card";
 import Image from "next/image";
+import Coin from "./Coin";
 type Props = {
   openPointCards: IPointCard[] | undefined;
+  gameBoardPoints? : {gold:number,silver:number};
 };
-const PointsCards = ({ openPointCards }: Props) => {
+const PointsCards = ({ openPointCards, gameBoardPoints }: Props) => {
   return <div className="flex items-center">
       <Droppable
         droppableId="pointCards"
@@ -16,7 +18,7 @@ const PointsCards = ({ openPointCards }: Props) => {
           return (
             <div
               ref={provided.innerRef}
-              className="bg-red-100 grow flex justify-end p-2"
+              className="bg-red-100 grow flex justify-end p-2 h-48 items-center"
             >
               {openPointCards?.map((item, index) => (
                 <Draggable
@@ -30,8 +32,12 @@ const PointsCards = ({ openPointCards }: Props) => {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className="px-3"
-                      >
+                        className="px-3 relative"
+                      > 
+                        {gameBoardPoints&&gameBoardPoints.gold >0&&index===0&&<Coin coinNum={gameBoardPoints.gold} src="/coins/Gold.svg"/>}
+                        {index===0&&gameBoardPoints&&gameBoardPoints.silver>0&&gameBoardPoints.gold<=0&&<Coin coinNum={gameBoardPoints.silver} src="/coins/Silver.svg"/>}
+                        {index===1&&gameBoardPoints&&gameBoardPoints.silver>0&&gameBoardPoints.gold>0&&<Coin coinNum={gameBoardPoints.silver} src="/coins/Silver.svg"/>}
+                        
                         <Card type="point" cardID={item.cardID} pointCard={item}/>
                       </div>
                     );

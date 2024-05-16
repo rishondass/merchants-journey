@@ -14,7 +14,7 @@ const RestCards = ({playerRestCards,restToActive}:Props) => {
             {(provided)=>{
               return <div className="w-9/12 flex items-center"><div 
               ref={provided.innerRef}
-              className="bg-[#F0CDCD] rounded-md h-36 flex py-2 grow pr-10">
+              className="bg-[#F0CDCD] rounded-md h-48 items-center flex py-2 grow pr-10">
                 {playerRestCards?.map((item,index) => (
                   <Draggable isDragDisabled={true} key={index} draggableId={"restSpace"+index} index={index}>
                     {(provided)=>{

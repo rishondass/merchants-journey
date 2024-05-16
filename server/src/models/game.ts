@@ -22,7 +22,7 @@ export type IPlayer = {
 	activeCards: ITradeCard[];
 	restCards: ITradeCard[];
   pointCards: IPointCard[];
-	coins: {copper: number; silver: number};
+	coins: {gold: number; silver: number};
 };
 
 export type IGame = {
@@ -34,5 +34,5 @@ export type IGame = {
 	players: IPlayer[];
   maxPlayers:number;
   isActive: boolean;
-
+  coins: {gold: number, silver:number}
 };

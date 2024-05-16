@@ -43,6 +43,7 @@ export class GameDao implements IGameDao {
 	public readonly pointCards: IPointCard[];
 	public readonly players: IPlayer[];
   public isActive:boolean;
+  public coins: {gold:number, silver:number}
 
 	constructor(playerCount: number,gameTime:number) {
 		this.gameID = uuidv4();
@@ -53,7 +54,8 @@ export class GameDao implements IGameDao {
 		this.players = [];
 		this.tradeCards = shuffleTrade(TradeCardsJSON.splice(2) as ITradeCard[]);
 		this.pointCards = shufflePoint(PointCardsJSON as IPointCard[]);
-	}
+    this.coins = {gold:0,silver:0};
+  }
 
 	public fields() {
 		return [this.gameID, this.turn, this.players, this.tradeCards, this.pointCards];

@@ -42,7 +42,6 @@ export default function Page({ params }: Props) {
           const player = gameObj.players.find(player=>{
             console.log(player.id)
             return player.id === user.userID});
-          console.log(player);
           if(player){
             setGame(gameObj);
             setTimeout(()=>{

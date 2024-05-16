@@ -11,7 +11,7 @@ const ActiveCards = ({playerActiveCards}:Props) => {
             {(provided)=>{
               return <div 
               ref={provided.innerRef}
-              className="bg-[#CDE8F0] w-11/12 rounded-md h-40 flex py-2 overflow-x-auto">
+              className="bg-[#CDE8F0] w-11/12 h-52 items-center rounded-md flex py-2 overflow-x-auto">
                 {playerActiveCards?.map((item,index) => (
                   <Draggable key={item.cardID} draggableId={"activeSpace"+index} index={index}>
                     {(provided)=>{

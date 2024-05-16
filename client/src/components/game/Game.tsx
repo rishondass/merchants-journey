@@ -13,6 +13,7 @@ import ActiveCards from "./ActiveCards";
 import PlayerCard from "./PlayerCard";
 import GemsModal from "./GemsModal";
 import GemsUpgrade from "./GemsUpgrade";
+import DiscardGemsModal from "./DiscardGemsModal";
 type Props= {
   gameTimeInit: number;
   gameID: string;
@@ -27,13 +28,18 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   const [playerRestCards, setPlayerRestCards] = useState<ITradeCard[] | undefined>([]);
   const [playerPointCards, setPlayerPointCards] = useState<IPointCard[] | undefined>([]);
 
+  const [playerCoins, setPlayerCoins] = useState<{gold:number,silver:number} | undefined>({gold:0,silver:0})
+
   const [gems,setGems] = useState<string[] | undefined>([]);
 
   const [openPointCards, setOpenPointCards] = useState<IPointCard[] | undefined>([]);
   const [openTradeCards, setOpenTradeCards] = useState<ITradeCard[] | undefined>([]);
 
+  const [gameBoardPoints, setGameBoardPoints] = useState<{gold:number,silver:number} | undefined>({gold:0,silver:0})
+
   const [gemsModal, setGemsModal] = useState(0);
   const [upgradeModal, setUpgradeModal] = useState(false);
+  const [discardModal, setDiscardModal] = useState<{gems:string[],count:number} | null>(null);
 
   const [currentCard, setCurrentCard] = useState({source:-1, destination:-1});
   
@@ -59,24 +65,26 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   },[]);
 
   useEffect(()=>{
-    //console.log(game);
+    console.log(game);
     if(game){
       const player = game?.players.find(p=> p.id === user.userID);
       if(player){
         setIsPlayerTurn(game?.players[(game?.turn ??0)%(game?.maxPlayers ?? 2)].id === user.userID);
       }
       setGems(player?.gems);
+      setPlayerCoins(player?.coins);
       setPlayerActiveCards(player?.activeCards);
       setPlayerRestCards(player?.restCards);
       setPlayerPointCards(player?.pointCards);
       setOpenPointCards(game.pointCards);
       setOpenTradeCards(game.tradeCards);
+      setGameBoardPoints(game.coins);
     }
   },[game]);
 
   useEffect(()=>{
-    console.log(gems);
-  },[gems])
+    console.log(playerCoins);
+  },[playerCoins])
 
 
 
@@ -158,7 +166,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
     
 
     if(filteredGems&&(filteredGems.length + items.length) > 10){
-      //TODO:Discard extra gems system here
+      setDiscardModal({gems:[...filteredGems,...items],count:((filteredGems.length + items.length) - 10)});
       console.log("TOO MANY GEMS: " + (filteredGems.length + items.length));
     }else{
       if(gems){
@@ -213,6 +221,42 @@ const Game = ({gameTimeInit,gameID}:Props) => {
 
       setPlayerPointCards(tempPlayerPoints);
       setOpenPointCards(tempPointCards);
+      if(source === 0 && gameBoardPoints && gameBoardPoints.gold > 0){
+        setPlayerCoins((prev)=>{
+          if(prev){
+            return {gold: prev.gold+1, silver: prev.silver}
+          }
+        });
+        setGameBoardPoints((prev)=>{
+          if(prev){
+            return {gold: prev.gold-1,silver:prev.silver}
+          }
+        })
+      }
+      else if(source === 0 && gameBoardPoints && gameBoardPoints.silver > 0 && gameBoardPoints.gold <= 0){
+        setPlayerCoins((prev)=>{
+          if(prev){
+            return {gold: prev.gold, silver: prev.silver+1}
+          }
+        });
+        setGameBoardPoints((prev)=>{
+          if(prev){
+            return {gold: prev.gold,silver:prev.silver-1}
+          }
+        })
+      }
+      else if(source === 1 && gameBoardPoints && gameBoardPoints.silver > 0){
+        setPlayerCoins((prev)=>{
+          if(prev){
+            return {gold: prev.gold, silver: prev.silver+1}
+          }
+        });
+        setGameBoardPoints((prev)=>{
+          if(prev){
+            return {gold: prev.gold,silver:prev.silver-1}
+          }
+        })
+      }
     }
   }
 
@@ -222,6 +266,10 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   
   const toggleUpgradeModal = ()=>{
     setUpgradeModal(!upgradeModal);
+  }
+
+  const closeDiscardGemsModal = ()=>{
+    setDiscardModal(null);
   }
 
   const tradeToActiveConfirm = (gemSel:boolean[],count:number)=>{
@@ -260,6 +308,12 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   const confirmUpgrade = (newGems: string[])=>{
     const temp = [...newGems];
     setGems(temp);
+  }
+
+  const confirmDiscard = (newGems: string[])=>{
+    console.log('confirming discard');
+    console.log(newGems);
+    setGems(newGems);
   }
 
   const tradeToActive = (source: DraggableLocation,destination: DraggableLocation)=>{
@@ -365,7 +419,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
         const c = getGemsCount(openPointCards[source.index].gems);
         
         if(p.Y >= c.Y && p.B >= c.B && p.G >= c.G && p.R >= c.R){
-          removeGemsFromPlayer(openPointCards[source.index].gems);
+          setGems(removeGemsFromPlayer(openPointCards[source.index].gems));
           movePointsToPlayer(source.index,destination.index);
         }
         
@@ -377,14 +431,15 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   }
 
   return <>
+    {discardModal&& createPortal(<DiscardGemsModal closeModal={closeDiscardGemsModal} gems={discardModal.gems} count={discardModal.count} confirmFn={confirmDiscard}/>,document.body)}
     {upgradeModal&& createPortal(<GemsUpgrade confirmFn={confirmUpgrade} count={2} gems={gems} closeModal={toggleUpgradeModal}/>,document.body)}
     {gemsModal>0&&createPortal(<GemsModal gems={gems} count={gemsModal} closeModal={closeGemsModal} confirmFn={tradeToActiveConfirm}/>,document.body)}
     <div className="flex flex-col h-screen p-3">
-      <div className={"flex justify-center"}>
-        <div className="bg-blue-500 text-white w-24 py-3 rounded-full text-center">
+      <div className={"flex justify-center absolute w-96 z-10"} style={{right: "calc(50% - 194px)"}}>
+        <div className="bg-blue-500 text-white w-24 py-3 rounded-full text-center shadow-lg">
           {Math.floor(gameTime/60)}:{(String(gameTime%60).padStart(2,"0"))}
         </div>
-        <div className={clsx("text-white w-24 py-3 rounded-full text-center",isPlayerTurn?"bg-emerald-400":"bg-blue-500")}>
+        <div className={clsx("text-white w-24 py-3 rounded-full text-center shadow-lg",isPlayerTurn?"bg-emerald-400":"bg-blue-500")}>
           Turn: {game?.players[(game?.turn ??0)%(game?.maxPlayers ?? 2)].username}
         </div>
         <div>
@@ -396,11 +451,11 @@ const Game = ({gameTimeInit,gameID}:Props) => {
           
           <PointSpace playerPointCards={playerPointCards}/>
           <div className="bg-green-100 grow flex flex-col px-10 justify-center">
-            <PointsCard openPointCards={openPointCards?.slice(0,6)}/>
+            <PointsCard openPointCards={openPointCards?.slice(0,6)}  gameBoardPoints={gameBoardPoints}/>
             <TradeCards openTradeCards={openTradeCards?.slice(0,7)}/>
           </div>
-          <div className="bg-slate-400 w-60">
-            {playerActiveCards&&playerPointCards&&gems&&playerRestCards&&<PlayerCard activeCards={playerActiveCards} gems={gems} pointCards={playerPointCards} restCards={playerRestCards} username={user.username} id={user.userID} coins={{copper:0,silver:0}}/>}
+          <div className="bg-slate-400 w-60 flex flex-col gap-1">
+            {playerActiveCards&&playerPointCards&&gems&&playerRestCards&&<PlayerCard activeCards={playerActiveCards} gems={gems} pointCards={playerPointCards} restCards={playerRestCards} username={user.username} id={user.userID} coins={playerCoins??{gold:0,silver:0}}/>}
             
             {game?.players.map(player=>{
               if(player.id !== user.userID)

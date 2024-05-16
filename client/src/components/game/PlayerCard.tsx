@@ -22,47 +22,47 @@ const PlayerCard = ({activeCards,coins,gems,id,pointCards,restCards,username}:IP
   },[gems])
 
   return <>
-    <div className='w-full h-32 bg-zinc-800 rounded-md p-1 shadow-md text-white'>
+    <div className='w-full h-24 bg-zinc-800 rounded-md p-1 shadow-md text-white'>
       <div className='text-nowrap overflow-clip text-center'>{username}</div>
       <div className='flex gap-1 justify-center'>
         <div className='flex items-center'>
           <span>x{gemCount.yellow}</span>
-          <Image src={"/gems/yellow.svg"} width={32} height={32} alt={"yellow-gem"}/>
+          <Image src={"/gems/yellow.svg"} width={24} height={24} alt={"yellow-gem"}/>
         </div>
         <div className='flex items-center'>
           <span>x{gemCount.green}</span>
-          <Image src={"/gems/green.svg"} width={32} height={32} alt={"green-gem"}/>
+          <Image src={"/gems/green.svg"} width={24} height={24} alt={"green-gem"}/>
         </div>
         <div className='flex items-center'>
           <span>x{gemCount.blue}</span>
-          <Image src={"/gems/blue.svg"} width={32} height={32} alt={"blue-gem"}/>
+          <Image src={"/gems/blue.svg"} width={24} height={24} alt={"blue-gem"}/>
         </div>
         <div className='flex items-center'>
           <span>x{gemCount.red}</span>
-          <Image src={"/gems/red.svg"} width={32} height={32} alt={"red-gem"}/>
+          <Image src={"/gems/red.svg"} width={24} height={24} alt={"red-gem"}/>
         </div>
       </div>
       <div className='flex gap-1 justify-center'>
-        <div className='flex w-8 h-11 bg-gray-400 rounded-sm text-white items-center justify-center'>
+        <div className='flex w-6 h-9 bg-gray-400 rounded-sm text-white items-center justify-center'>
             x{restCards.length}
         </div>
-        <div className='flex w-8 h-11 bg-blue-400 rounded-sm text-white items-center justify-center'>
+        <div className='flex w-6 h-9 bg-blue-400 rounded-sm text-white items-center justify-center'>
           x{activeCards.length}
         </div>
-        <div className='flex w-8 h-11 bg-red-400 rounded-sm text-white items-center justify-center'>
+        <div className='flex w-6 h-9 bg-red-400 rounded-sm text-white items-center justify-center'>
           x{pointCards.length}
         </div>
         <div className="flex justify-center items-center">
           <div className='relative'>
-            <div className="absolute top-1 right-1 pr-2 pt-1 text-white">x{coins.copper}</div>
-            <Image src={"/coins/Gold.svg"} width={42} height={42} alt="gold-coin"/>
+            <div className="absolute top-1 right-1 pr-1 text-white">x{coins.gold}</div>
+            <Image src={"/coins/Gold.svg"} width={32} height={32} alt="gold-coin"/>
           </div>
           
         </div>
         <div className="flex justify-center items-center">
           <div className='relative'>
-            <div className="absolute top-1 right-1 pr-2 pt-1 text-white">x{coins.silver}</div>
-            <Image src={"/coins/Silver.svg"} width={42} height={42} alt="gold-coin"/>
+            <div className="absolute top-1 right-1 pr-1 text-white">x{coins.silver}</div>
+            <Image src={"/coins/Silver.svg"} width={32} height={32} alt="gold-coin"/>
           </div>
           
         </div>

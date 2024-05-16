@@ -74,7 +74,6 @@ const connection = (socket: Socket) => {
     const game = getGame(gameID);
     if(game){
       if(game.players.length < game.maxPlayers){
-        //TODO:Add people in the lobby to a lobby room and leave the lobby when they join the game room
         socket.join(game.gameID);
         game.addPlayer(new PlayerDao(socket.data.user.id,socket.data.user.auth.username))
         addGameToPlayer(socket.data.user.id, game.gameID);
@@ -136,6 +135,7 @@ const connection = (socket: Socket) => {
     const game = getGame(gameID);
     if(game){
       game.isActive = true;
+      game.coins = {gold:game.players.length*2,silver:game.players.length*2}
       updateGame(game);
     }
     socket.broadcast.to(gameID).emit('startGame');
