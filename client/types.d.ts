@@ -34,3 +34,7 @@ type IGame = {
   isActive: boolean;
   coins: {gold: number, silver:number}
 };
+
+type podium = {
+  playerID:string,username:string,totalPoints:number
+}[]

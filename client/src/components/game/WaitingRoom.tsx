@@ -5,6 +5,7 @@ import { useUser } from "@/lib/globalStates";
 import { getCookie } from "@/lib/Cookies";
 import Game from "@/components/game/Game"
 import socket from "@/socket";
+import Winner from "./Winner";
 
 type Props = {
   gameObj: IGame | undefined;
@@ -14,6 +15,9 @@ const WaitingRoom = ({gameObj}:Props) => {
   const router = useRouter();
   const [user,setUser] = useUser(state=>[state.user,state.setUser]);
   const [game, setGame] = useState<IGame | undefined>(gameObj);
+  
+  const [podium, setPodium] = useState<podium | undefined>();
+
   const [startGame, setStartGame] = useState(false);
   useEffect(()=>{
 
@@ -46,6 +50,11 @@ const WaitingRoom = ({gameObj}:Props) => {
 
     socket.on('startGame',()=>{
       setStartGame(true);
+    })
+
+    socket.on('displayWinner',(podium:podium)=>{
+      setPodium(podium);
+      console.log("showing winners",podium);
     })
 
     return (()=>{
@@ -92,7 +101,8 @@ const WaitingRoom = ({gameObj}:Props) => {
   }
 
   
-  return <>{(startGame||gameObj?.isActive)?<Game gameID={game?.gameID ?? ""} gameTimeInit={gameObj?.gameTime ?? 0}/>:<div className="w-full h-screen bg-blue-600 text-white flex flex-col justify-center items-center">
+  return <>{podium?<Winner podium={podium}/>:(startGame||gameObj?.isActive)?<Game gameID={game?.gameID ?? ""} gameTimeInit={gameObj?.gameTime ?? 0}/>:
+  <div className="w-full h-screen bg-blue-600 text-white flex flex-col justify-center items-center">
     <div className="font-bold text-3xl p-10">Waiting For Players...</div>
     
     
@@ -105,7 +115,7 @@ const WaitingRoom = ({gameObj}:Props) => {
     </div>
     <div className="flex gap-4 pt-10">
       <button className="bg-rose-500 p-4 rounded-md w-24" onClick={leave}>Leave</button>
-      {game&&game.players[0].id === user.userID&&game.players.length === (game.maxPlayers-1) && 
+      {game&&game.players[0].id === user.userID&&game.players.length === (game.maxPlayers) && 
         <button className="bg-emerald-400 rounded-md p-4 w-24" onClick={start}>start</button>
       }
       

@@ -45,15 +45,15 @@ const GemsModal = ({gems,count,closeModal,confirmFn}:Props) => {
         <div className="grid grid-cols-5 gap-3">
           {gems?.map((gem,index)=>{
             if(gem === "Y")
-              return <Image className={clsx("cursor-pointer",gemSel[index]?"drop-shadow-whiteBr":"drop-shadow-md")} src={"/gems/yellow.svg"} alt={"yellow-gem"} width={52} height={52} onClick={()=>{selectGems(index)}}/>
+              return <Image className={clsx("cursor-pointer",gemSel[index]?"drop-shadow-whiteBr":"drop-shadow-md")} src={"/gems/yellow.svg"} alt={"yellow-gem"} width={52} height={52} onClick={()=>{selectGems(index)}} key={index}/>
             else if(gem === "G")
-              return <Image className={clsx("cursor-pointer",gemSel[index]?"drop-shadow-whiteBr":"drop-shadow-md")} src={"/gems/green.svg"} alt={"green-gem"} width={52} height={52} onClick={()=>{selectGems(index)}}/>
+              return <Image className={clsx("cursor-pointer",gemSel[index]?"drop-shadow-whiteBr":"drop-shadow-md")} src={"/gems/green.svg"} alt={"green-gem"} width={52} height={52} onClick={()=>{selectGems(index)}} key={index}/>
             else if(gem === "B")
-              return <Image className={clsx("cursor-pointer",gemSel[index]?"drop-shadow-whiteBr":"drop-shadow-md")} src={"/gems/blue.svg"} alt={"blue-gem"} width={52} height={52} onClick={()=>{selectGems(index)}}/>
+              return <Image className={clsx("cursor-pointer",gemSel[index]?"drop-shadow-whiteBr":"drop-shadow-md")} src={"/gems/blue.svg"} alt={"blue-gem"} width={52} height={52} onClick={()=>{selectGems(index)}} key={index}/>
             else if(gem === "R")
-              return <Image className={clsx("cursor-pointer",gemSel[index]?"drop-shadow-whiteBr":"drop-shadow-md")} src={"/gems/red.svg"} alt={"red-gem"} width={52} height={52} onClick={()=>{selectGems(index)}}/>
+              return <Image className={clsx("cursor-pointer",gemSel[index]?"drop-shadow-whiteBr":"drop-shadow-md")} src={"/gems/red.svg"} alt={"red-gem"} width={52} height={52} onClick={()=>{selectGems(index)}} key={index}/>
             else 
-              return <Image className="shadow-inner" src={"/gems/blankgem.png"} alt={"blank-gem"} width={52} height={52}/>
+              return <Image className="shadow-inner" src={"/gems/blankgem.png"} alt={"blank-gem"} width={52} height={52} key={index}/>
           })}
         </div>
         <div className="flex justify-center pt-3">

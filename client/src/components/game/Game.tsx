@@ -42,6 +42,8 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   const [discardModal, setDiscardModal] = useState<{gems:string[],count:number} | null>(null);
 
   const [currentCard, setCurrentCard] = useState({source:-1, destination:-1});
+
+  const [endPlayerTurn, setEndPlayerTurn] = useState(false);
   
 
 
@@ -53,6 +55,9 @@ const Game = ({gameTimeInit,gameID}:Props) => {
     socket.on('updateGameTimer',(time:number)=>{
       if(Math.abs(time-gameTimeInit) <= gameTimeInit)
         setGameTime(time);
+      else{
+        //socket.emit('endGameTimer');
+      }  
     })
 
     socket.on('updateGame',(gameObj: IGame)=>{
@@ -79,17 +84,61 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       setOpenPointCards(game.pointCards);
       setOpenTradeCards(game.tradeCards);
       setGameBoardPoints(game.coins);
+      setEndPlayerTurn(false);
     }
   },[game]);
 
   useEffect(()=>{
-    console.log(playerCoins);
-  },[playerCoins])
+    if(playerPointCards && game){
+      if(game.maxPlayers < 4 && playerPointCards.length >= 6){
+        socket.emit('endGame', game.gameID);
+      }
+      else if(game.maxPlayers >= 4 && playerPointCards.length >= 5){
+        socket.emit('endGame', game.gameID);
+      }
+    }
+  },[playerPointCards]);
 
+
+  useEffect(()=>{
+    if(endPlayerTurn && isPlayerTurn){
+      console.log('ending turn');
+      endTurn();
+    }
+  },[endPlayerTurn])
+
+  useEffect(()=>{
+    // if(gameTime <= 0){
+    //   if(game){
+    //     socket.emit('endGame',game.gameID);
+    //   } 
+    // }
+  },[gameTime])
 
 
   const endTurn = ()=>{
-    socket.emit('endGameTurn',game);
+    
+    if(game && gems && playerCoins && playerActiveCards && playerRestCards && playerPointCards && gameBoardPoints){
+      const tempGame = game;
+
+      tempGame.players.forEach((player,index)=>{
+        if(player.id === user.userID){
+          tempGame.players[index].gems = gems;
+          tempGame.players[index].coins = playerCoins;
+          tempGame.players[index].activeCards = playerActiveCards;
+          tempGame.players[index].restCards = playerRestCards;
+          tempGame.players[index].pointCards = playerPointCards;
+          return;
+        }
+      });
+
+      tempGame.tradeCards = openTradeCards;
+      tempGame.pointCards = openPointCards;
+      tempGame.coins = gameBoardPoints;
+      console.log(tempGame);
+      socket.emit('endGameTurn',tempGame);
+    }
+  
   }
 
   const reorder = (list:any[],startIndex:number,endIndex:number)=>{
@@ -122,7 +171,10 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       addGemsToPlayer(gemsInit,removed.extraGems);
       setPlayerActiveCards(tempActiveCards);
       setOpenTradeCards(tempTradeCards);
+
+      return true;
     }
+    return false;
     
   }
 
@@ -168,6 +220,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
     if(filteredGems&&(filteredGems.length + items.length) > 10){
       setDiscardModal({gems:[...filteredGems,...items],count:((filteredGems.length + items.length) - 10)});
       console.log("TOO MANY GEMS: " + (filteredGems.length + items.length));
+      return false;
     }else{
       if(gems){
         const temp = [...prevGems];
@@ -179,6 +232,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
         });
         console.log('adding gems', temp);
         setGems(temp);
+        return true;
       }
     }
 
@@ -197,8 +251,11 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       if(playerG.Y >= fromG.Y && playerG.G >= fromG.G && playerG.B >= fromG.B && playerG.R >= fromG.R){
         const tempGems = removeGemsFromPlayer(from);
         if(tempGems){
-          addGemsToPlayer(tempGems,to);
+          if(addGemsToPlayer(tempGems,to)){
+            setEndPlayerTurn(true);
+          }
           return true;
+          
         }
           
 
@@ -257,7 +314,9 @@ const Game = ({gameTimeInit,gameID}:Props) => {
           }
         })
       }
+      return true;
     }
+    return false;
   }
 
   const closeGemsModal = ()=>{
@@ -301,6 +360,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       moveTradeToActive(currentCard.source,currentCard.destination,remainGems);
       setGemsModal(0);
       setCurrentCard({source:-1,destination:-1});
+      setEndPlayerTurn(true);
     }
     
   }
@@ -308,17 +368,20 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   const confirmUpgrade = (newGems: string[])=>{
     const temp = [...newGems];
     setGems(temp);
+    setEndPlayerTurn(true);
   }
 
   const confirmDiscard = (newGems: string[])=>{
     console.log('confirming discard');
     console.log(newGems);
     setGems(newGems);
+    setEndPlayerTurn(true);
   }
 
   const tradeToActive = (source: DraggableLocation,destination: DraggableLocation)=>{
     if(source.index===0 && gems){
       moveTradeToActive(source.index,destination.index,gems);
+      setEndPlayerTurn(true);
     }else{
         let count = 0;
         gems?.forEach(gem=>{
@@ -356,17 +419,25 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       const card = playerActiveCards[source.index];
     
       if(card.cardType === "Obtain"){
-        addGemsToPlayer(gems ?? [],card.to);
         moveActiveToRest(source.index,destination.index);
+        if(addGemsToPlayer(gems ?? [],card.to)){
+          setEndPlayerTurn(true);
+        }
+          
+          
+        
+        
       }
       else if(card.cardType === "Trade"){
         console.log('trade')
-        if(tradeGems(card.from,card.to))
+        if(tradeGems(card.from,card.to)){
           moveActiveToRest(source.index,destination.index);
+        }
+          
       }
       else if(card.cardType === "Upgrade"){
         toggleUpgradeModal();
-        moveActiveToRest(source.index,destination.index);
+        moveActiveToRest(source.index,destination.index)
       }
     }
     
@@ -377,6 +448,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
       setPlayerActiveCards([...playerActiveCards, ...playerRestCards]);
       setPlayerRestCards([]);
     }
+    setEndPlayerTurn(true);
   }
 
   const onDragEnd = (result:DropResult)=>{
@@ -421,6 +493,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
         if(p.Y >= c.Y && p.B >= c.B && p.G >= c.G && p.R >= c.R){
           setGems(removeGemsFromPlayer(openPointCards[source.index].gems));
           movePointsToPlayer(source.index,destination.index);
+          setEndPlayerTurn(true);
         }
         
       }
@@ -434,7 +507,7 @@ const Game = ({gameTimeInit,gameID}:Props) => {
     {discardModal&& createPortal(<DiscardGemsModal closeModal={closeDiscardGemsModal} gems={discardModal.gems} count={discardModal.count} confirmFn={confirmDiscard}/>,document.body)}
     {upgradeModal&& createPortal(<GemsUpgrade confirmFn={confirmUpgrade} count={2} gems={gems} closeModal={toggleUpgradeModal}/>,document.body)}
     {gemsModal>0&&createPortal(<GemsModal gems={gems} count={gemsModal} closeModal={closeGemsModal} confirmFn={tradeToActiveConfirm}/>,document.body)}
-    <div className="flex flex-col h-screen p-3">
+    <div className="flex flex-col min-h-screen max-h-screen p-3">
       <div className={"flex justify-center absolute w-96 z-10"} style={{right: "calc(50% - 194px)"}}>
         <div className="bg-blue-500 text-white w-24 py-3 rounded-full text-center shadow-lg">
           {Math.floor(gameTime/60)}:{(String(gameTime%60).padStart(2,"0"))}
@@ -442,24 +515,25 @@ const Game = ({gameTimeInit,gameID}:Props) => {
         <div className={clsx("text-white w-24 py-3 rounded-full text-center shadow-lg",isPlayerTurn?"bg-emerald-400":"bg-blue-500")}>
           Turn: {game?.players[(game?.turn ??0)%(game?.maxPlayers ?? 2)].username}
         </div>
-        <div>
-          <button onClick={endTurn} className="p-3 bg-red-400 text-white">End Turn</button>
-        </div>
+        {/* <div>
+          <button onClick={endTu
+            rn} className="p-3 bg-red-400 text-white">End Turn</button>
+        </div> */}
       </div>
       <DragDropContext  onDragEnd={onDragEnd}>
-        <div className="grow flex">
+        <div className="grow flex max-h-[53vh]">
           
           <PointSpace playerPointCards={playerPointCards}/>
           <div className="bg-green-100 grow flex flex-col px-10 justify-center">
             <PointsCard openPointCards={openPointCards?.slice(0,6)}  gameBoardPoints={gameBoardPoints}/>
             <TradeCards openTradeCards={openTradeCards?.slice(0,7)}/>
           </div>
-          <div className="bg-slate-400 w-60 flex flex-col gap-1">
+          <div className="bg-slate-400 w-60 flex flex-col gap-1 overflow-y-auto">
             {playerActiveCards&&playerPointCards&&gems&&playerRestCards&&<PlayerCard activeCards={playerActiveCards} gems={gems} pointCards={playerPointCards} restCards={playerRestCards} username={user.username} id={user.userID} coins={playerCoins??{gold:0,silver:0}}/>}
             
-            {game?.players.map(player=>{
+            {game?.players.map((player,index)=>{
               if(player.id !== user.userID)
-                return <PlayerCard {...player}/>
+                return <PlayerCard {...player} key={index}/>
             })}
 
           </div>
