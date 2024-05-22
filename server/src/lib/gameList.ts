@@ -1,9 +1,9 @@
 import { type IGameDao} from "../dao"
 import { IGame, IPlayer } from "../models/game";
-const gameList:Record<string, {game: IGameDao}> = {}
+const gameList:Map<string, {game: IGameDao}> = new Map();
 
 export const addGame = (game:IGameDao)=>{
-  gameList[game.gameID] = {game:game};
+  gameList.set(game.gameID, {game:game});
 }
 
 
@@ -23,7 +23,7 @@ export const getGamesDetails = ()=>{
 }
 
 export const getGameDetails = (gameID:string)=>{
-  const game = gameList[gameID];
+  const game = gameList.get(gameID);
   if(game){
     return {
       gameID: game.game.gameID,
@@ -38,26 +38,28 @@ export const getGameDetails = (gameID:string)=>{
 }
 
 export const getGame = (gameID:string) =>{
-  if(gameList[gameID]){
-    return gameList[gameID].game;
+  const game = gameList.get(gameID)
+  if(game){
+    return game.game;
   }else{
     return null;
   }
 }
 
 export const updateGame = (game:IGameDao)=>{
-  gameList[game.gameID] = {game:game}
-  return gameList[game.gameID].game;
+  gameList.set(game.gameID, {game});
+  return gameList.get(game.gameID);
 }
 
 export const deleteGame = (gameID:string)=>{
   try{
     console.log(gameID);
-    const game = gameList[gameID]
-    console.log(gameList.hasOwnProperty(gameID));
-    delete gameList[gameID];
-    console.log(gameList.hasOwnProperty(gameID));
-    return game.game;
+    const game = gameList.get(gameID);
+    gameList.delete(gameID);
+    if(game)
+      return game.game;
+    else
+      return null;
   }catch(e){
     return null;
   }
