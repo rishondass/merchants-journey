@@ -52,8 +52,11 @@ export const updateGame = (game:IGameDao)=>{
 
 export const deleteGame = (gameID:string)=>{
   try{
+    console.log(gameID);
     const game = gameList[gameID]
+    console.log(gameList.hasOwnProperty(gameID));
     delete gameList[gameID];
+    console.log(gameList.hasOwnProperty(gameID));
     return game.game;
   }catch(e){
     return null;

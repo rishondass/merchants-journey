@@ -3,6 +3,8 @@ import { GameDao, IGameDao, PlayerDao } from "../dao";
 import {getPlayer,getAllPlayers,removePlayer, addGameToPlayer, removeGameFromPlayer} from '../lib/playerList';
 import {addGame as addGameObj, getGamesDetails,getGameDetails, getGame, updateGame, deleteGame} from "../lib/gameList";
 import {io} from "../index"
+
+
 const connection = (socket: Socket) => {
 	//console.log(socket.data.user);
   //console.log(playerList)
@@ -21,10 +23,10 @@ const connection = (socket: Socket) => {
    */
 
   socket.on('createGame',(game,cb)=>{
-    const gameObj = new GameDao(game.players,game.time);
+    const gameObj = new GameDao(game.players,10);
     gameObj.addPlayer(new PlayerDao(socket.data.user.id,socket.data.user.auth.username));
     addGameToPlayer(socket.data.user.id, gameObj.gameID);
-    socket.data.user.gameID = gameObj.gameID;
+    //socket.data.user.gameID = gameObj.gameID;
     addGameObj(gameObj);
     io.emit('updateLobby','CREATE', gameObj);
     socket.join(gameObj.gameID);
@@ -52,7 +54,6 @@ const connection = (socket: Socket) => {
   socket.on('getGame',(gameID, cb)=>{
     
     const game = getGame(gameID);
-    console.log(game,gameID);
     if(game){
       cb(game);
     }else{
@@ -131,6 +132,66 @@ const connection = (socket: Socket) => {
     }
   })
 
+  const endGameFn = (gameID:string)=>{
+    const game = getGame(gameID);
+    //console.log(gameID,game);
+    if(game){
+      const podium:{playerID:string,username:string,totalPoints:number}[] = [];
+
+      //Calculate Players' Points
+      game.players.forEach(player=>{
+        let totalPoints = 0;
+        player.pointCards.forEach(card=>{
+          totalPoints += card.points;
+        });
+        player.gems.forEach(gem=>{
+          if(gem && gem !== 'Y'){
+            totalPoints += 1;
+          }
+        });
+        totalPoints += player.coins.gold * 3;
+        totalPoints += player.coins.silver;
+
+        podium.push({playerID: player.id,username:player.username, totalPoints: totalPoints});
+        removeGameFromPlayer(player.id);
+      })
+
+      //TODO: Add tie condition
+      //Sort players based on their points
+      for(let i = 0; i < podium.length; i++){
+        for(let j = 0; j < (podium.length-i-1); j++){
+          if(podium[j].totalPoints > podium[j+1].totalPoints){
+            const temp = podium[j];
+            podium[j] = podium[j+1];
+            podium[j+1] = temp;
+          }
+        }
+      }
+
+      
+      io.to(gameID).emit('displayWinner',podium);
+    }
+
+
+    
+
+    const delGame = deleteGame(gameID);
+    
+    if(delGame){
+      //io.to(gameID).emit('gameClose');
+      console.log("leaving room");
+      io.socketsLeave(gameID);
+
+      setTimeout(()=>{
+        io.emit('updateLobby','DELETE', game);
+      },2000)
+      
+      
+      
+    }
+    console.log(getGamesDetails());
+  }
+
   socket.on('startGameSignal',(gameID:string)=>{
     const game = getGame(gameID);
     if(game){
@@ -141,16 +202,28 @@ const connection = (socket: Socket) => {
     socket.broadcast.to(gameID).emit('startGame');
     console.log('starting game updates in 3 sec');
     setTimeout(()=>{
-      setInterval(()=>{
+      const interval = setInterval(()=>{
         const game = getGame(gameID);
         if(game){
           game.gameTime -= 1;
+          if(game.gameTime <= 0){
+            endGameFn(gameID);
+            clearInterval(interval);
+          }
           updateGame(game);
           io.to(gameID).emit('updateGameTimer',game.gameTime);
+          
         }
         
         
-      },1000)
+      },1000);
+
+      socket.on('endGameTimer',()=>{
+        console.log('clearing interval');
+        
+      })
+      
+
     },3000)
   })
 
@@ -160,6 +233,11 @@ const connection = (socket: Socket) => {
       const updatedGame = updateGame({...game,...gameObj, turn: game.turn+=1})
       io.to(gameObj.gameID).emit("updateGame",updatedGame);
     }
+  })
+
+  socket.once('endGame',(gameID:string)=>{
+    endGameFn(gameID);
+    
   })
 
   /**
