@@ -116,6 +116,8 @@ const Game = ({gameTimeInit,gameID}:Props) => {
   },[gameTime])
 
 
+
+
   const endTurn = ()=>{
     
     if(game && gems && playerCoins && playerActiveCards && playerRestCards && playerPointCards && gameBoardPoints){
@@ -515,20 +517,19 @@ const Game = ({gameTimeInit,gameID}:Props) => {
         <div className={clsx("text-white w-24 py-3 rounded-full text-center shadow-lg",isPlayerTurn?"bg-emerald-400":"bg-blue-500")}>
           Turn: {game?.players[(game?.turn ??0)%(game?.maxPlayers ?? 2)].username}
         </div>
-        {/* <div>
-          <button onClick={endTu
-            rn} className="p-3 bg-red-400 text-white">End Turn</button>
-        </div> */}
+        <div>
+          <button onClick={()=>{socket.emit('endGame', game?.gameID);}} className="p-3 bg-red-400 text-white">End Game</button>
+        </div>
       </div>
       <DragDropContext  onDragEnd={onDragEnd}>
         <div className="grow flex max-h-[53vh]">
           
           <PointSpace playerPointCards={playerPointCards}/>
-          <div className="bg-green-100 grow flex flex-col px-10 justify-center">
+          <div className="grow flex flex-col px-10 justify-center">
             <PointsCard openPointCards={openPointCards?.slice(0,6)}  gameBoardPoints={gameBoardPoints}/>
             <TradeCards openTradeCards={openTradeCards?.slice(0,7)}/>
           </div>
-          <div className="bg-slate-400 w-60 flex flex-col gap-1 overflow-y-auto">
+          <div className="w-60 flex flex-col gap-1 overflow-y-auto">
             {playerActiveCards&&playerPointCards&&gems&&playerRestCards&&<PlayerCard activeCards={playerActiveCards} gems={gems} pointCards={playerPointCards} restCards={playerRestCards} username={user.username} id={user.userID} coins={playerCoins??{gold:0,silver:0}}/>}
             
             {game?.players.map((player,index)=>{

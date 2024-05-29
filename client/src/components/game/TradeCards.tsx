@@ -13,7 +13,7 @@ const TradeCards = ({openTradeCards}:Props) => {
                 {(provided)=>{
                   return <div
                   ref={provided.innerRef}
-                  className="bg-teal-300 grow flex justify-end p-2 h-48 items-center"
+                  className="grow flex justify-end p-2 h-48 items-center"
                   >
                     {openTradeCards?.map((item,index) => (
                       <Draggable draggableId={"tradeCards"+index} index={index} key={item.cardID} >

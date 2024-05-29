@@ -29,11 +29,10 @@ const page = () => {
     });
 
     socket.emit('getGames',(games:IGame[])=>{
-      if(games){
-        setGames(games);
-      }
+      setGames(games);
       
     })
+    
 
     socket.on('updateLobby',(type:string,gameObj:IGame)=>{
       if(type === "CREATE"){

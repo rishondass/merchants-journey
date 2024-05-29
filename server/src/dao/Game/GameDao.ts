@@ -4,11 +4,7 @@ import TradeCardsJSON from '../../../json/TradeCards.json';
 import PointCardsJSON from '../../../json/PointCards.json';
 
 
-export type IGameDao = {
-	fields: () => Array<string | number | ITradeCard[] | IPointCard[] | IPlayer[]>;
-	addPlayer: (player: IPlayer) => void;
-	removePlayer: (playerID: string) => void;
-} & IGame;
+export type IGameDao = IGame;
 
 const shuffleTrade = (array:ITradeCard[]) =>{
   let currentIndex = array.length;
@@ -34,7 +30,7 @@ const shufflePoint = (array:IPointCard[]) =>{
 
 }
 
-export class GameDao implements IGameDao {
+export class GameDao implements IGame{
 	public readonly gameID: string;
   public readonly gameTime: number;
 	public readonly turn: number;
@@ -52,43 +48,8 @@ export class GameDao implements IGameDao {
     this.isActive = false;
     this.maxPlayers = playerCount;
 		this.players = [];
-		this.tradeCards = shuffleTrade(TradeCardsJSON.splice(2) as ITradeCard[]);
-		this.pointCards = shufflePoint(PointCardsJSON as IPointCard[]);
+		this.tradeCards = shuffleTrade([...TradeCardsJSON].splice(2) as ITradeCard[]);;
+		this.pointCards = shufflePoint([...PointCardsJSON] as IPointCard[]);
     this.coins = {gold:0,silver:0};
   }
-
-	public fields() {
-		return [this.gameID, this.turn, this.players, this.tradeCards, this.pointCards];
-	}
-
-	public addPlayer(player: IPlayer) {
-    if(this.players.length === 0){
-      player.gems = ['Y','Y','Y','','','','','','',''];
-      this.players.push(player);
-    }
-    else if(this.players.length == 1){
-      player.gems = ['Y','Y','Y','Y','','','','','',''];
-      this.players.push(player);
-    }
-    else if(this.players.length == 2){
-      player.gems = ['Y','Y','Y','Y','','','','','',''];
-      this.players.push(player);
-    }
-    else if(this.players.length == 3){
-      player.gems = ['Y','Y','Y','G','','','','','',''];
-      this.players.push(player);
-    }
-    else if(this.players.length == 4){
-      player.gems = ['Y','Y','Y','G','','','','','',''];
-      this.players.push(player);
-    }
-	}
-
-	public removePlayer(playerID:string): void {
-		for(let i=0;i<this.players.length;i++){
-      if(this.players[i].id === playerID){
-        this.players.splice(i,1);
-      }
-    }
-	}
 }

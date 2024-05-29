@@ -18,7 +18,7 @@ const PointsCards = ({ openPointCards, gameBoardPoints }: Props) => {
           return (
             <div
               ref={provided.innerRef}
-              className="bg-red-100 grow flex justify-end p-2 h-48 items-center"
+              className="grow flex justify-end p-2 h-48 items-center"
             >
               {openPointCards?.map((item, index) => (
                 <Draggable

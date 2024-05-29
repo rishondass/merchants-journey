@@ -15,7 +15,7 @@ const Winner = ({podium}:Props) => {
     setUser({...user,gameID:undefined});
     setTimeout(()=>{
       router.push("/lobby");
-    },1000);
+    },20000);
   },[])
 
   return (

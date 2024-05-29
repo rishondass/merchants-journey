@@ -9,7 +9,7 @@ function addPlayer(id:string,username:string,token:string, expires:number) {
 }
 
 // Function to remove a player from the playerList
-function removePlayer(id:string) {
+function removePlayerFromServer(id:string) {
   delete playerList[id];
 }
 
@@ -30,6 +30,6 @@ function removeGameFromPlayer(id:string){
   playerList[id] = {...playerList[id],gameID: undefined}
 }
 
-export {addGameToPlayer,removeGameFromPlayer,addPlayer, removePlayer, getPlayer, getAllPlayers };
+export {addGameToPlayer,removeGameFromPlayer,addPlayer, removePlayerFromServer, getPlayer, getAllPlayers };
 
 
