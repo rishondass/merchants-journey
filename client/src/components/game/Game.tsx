@@ -517,9 +517,9 @@ const Game = ({gameTimeInit,gameID}:Props) => {
         <div className={clsx("text-white w-24 py-3 rounded-full text-center shadow-lg",isPlayerTurn?"bg-emerald-400":"bg-blue-500")}>
           Turn: {game?.players[(game?.turn ??0)%(game?.maxPlayers ?? 2)].username}
         </div>
-        <div>
+        {/* <div>
           <button onClick={()=>{socket.emit('endGame', game?.gameID);}} className="p-3 bg-red-400 text-white">End Game</button>
-        </div>
+        </div> */}
       </div>
       <DragDropContext  onDragEnd={onDragEnd}>
         <div className="grow flex max-h-[53vh]">

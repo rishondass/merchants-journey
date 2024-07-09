@@ -116,7 +116,7 @@ const WaitingRoom = ({gameObj}:Props) => {
     <div className="flex gap-4 pt-10">
       <button className="bg-rose-500 p-4 rounded-md w-24" onClick={leave}>Leave</button>
       {game&&game.players[0].id === user.userID&&game.players.length === (game.maxPlayers) && 
-        <button className="bg-emerald-400 rounded-md p-4 w-24" onClick={start}>start</button>
+        <button className="bg-emerald-400 rounded-md p-4 w-24" onClick={start}>Start</button>
       }
       
     </div>

@@ -71,7 +71,7 @@ export default function Home() {
           continue
         </button>
       </div>
-      <div className="flex flex-col justify-end items-center text-center h-full text-gray-400">
+      {/* <div className="flex flex-col justify-end items-center text-center h-full text-gray-400">
         <div className="w-[40rem] text-balance py-2">
           <p>Disclaimer:</p>
           <p>
@@ -85,7 +85,8 @@ export default function Home() {
             game adventure.
           </p>
         </div>
-      </div>
+      </div> */}
+      <iframe className="absolute bottom-10" width="560" height="315" src="https://www.youtube.com/embed/QxQptFq69ZQ?si=A0H08NZDS0KMaB0g" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
     </div>
   );
 }

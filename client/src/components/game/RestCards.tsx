@@ -12,7 +12,9 @@ const RestCards = ({playerRestCards,restToActive}:Props) => {
   return (
     <Droppable droppableId="usedCards" type="card" direction="horizontal">
             {(provided)=>{
-              return <div className="w-9/12 flex items-center"><div 
+              return <>
+              <div>Rest Cards</div>
+              <div className="w-9/12 flex items-center"><div 
               ref={provided.innerRef}
               className="bg-[#F0CDCD] rounded-md h-48 items-center flex py-2 grow pr-10">
                 {playerRestCards?.map((item,index) => (
@@ -39,6 +41,7 @@ const RestCards = ({playerRestCards,restToActive}:Props) => {
                 </button>
               
               </div>
+              </>
             }}
           </Droppable>
   )

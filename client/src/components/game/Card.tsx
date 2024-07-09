@@ -61,16 +61,16 @@ const Card = ({type, cardID,pointCard,tradeCard}:Props) => {
                   return <Image className="shadow-md" src={"/gems/red.svg"} alt={"red-gem"} width={16} height={16} key={index}/>
               })}
           </div>
-          <div className="absolute top-1/2 right-1/2">
+          <div className="absolute top-3 w-24 h-full flex items-center justify-center">
             {tradeCard?.extraGems.map((gem,index)=>{
               if(gem === "Y")
-                return <Image className="shadow-md" src={"/gems/yellow.svg"} alt={"yellow-gem"} width={16} height={16} key={index}/>
+                return <Image className="shadow-xl" src={"/gems/yellow.svg"} alt={"yellow-gem"} width={32} height={32} key={index}/>
               else if(gem === "G")
-                return <Image className="shadow-md" src={"/gems/green.svg"} alt={"green-gem"} width={16} height={16} key={index}/>
+                return <Image className="shadow-md" src={"/gems/green.svg"} alt={"green-gem"} width={32} height={32} key={index}/>
               else if(gem === "B")
-                return <Image className="shadow-md" src={"/gems/blue.svg"} alt={"blue-gem"} width={16} height={16} key={index}/>
+                return <Image className="shadow-md" src={"/gems/blue.svg"} alt={"blue-gem"} width={32} height={32} key={index}/>
               else if(gem === "R")
-                return <Image className="shadow-md" src={"/gems/red.svg"} alt={"red-gem"} width={16} height={16} key={index}/>
+                return <Image className="shadow-md" src={"/gems/red.svg"} alt={"red-gem"} width={32} height={32} key={index}/>
             })}
           </div>
         </div>

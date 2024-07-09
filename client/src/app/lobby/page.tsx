@@ -7,6 +7,7 @@ import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import CreateModal from "@/components/lobby/CreateModal";
 import { useUser } from "@/lib/globalStates";
+import { IoIosLogOut } from "react-icons/io";
 const page = () => {
   const [user,setUser] = useUser(state=>[state.user,state.setUser]);
   const router = useRouter();
@@ -83,9 +84,9 @@ const page = () => {
   return <div className="p-3 h-screen flex flex-col relative">
     {createModal&& <CreateModal toggleModal={toggleModal}/>}
     <div className="flex justify-end">
-      <div className="bg-bgGray rounded-md p-2 cursor-pointer flex" onClick={logOff}>
-        <FaUserAlt size={28}/>
-        <div>{user.username} {user.gameID}</div>
+      <div className="bg-bgGray rounded-md p-2 cursor-pointer flex gap-3" onClick={logOff}>
+        <div>{user.username}</div>
+        <IoIosLogOut size={24} className="text-red-400"/>
       </div>  
     </div>
     <div className="flex justify-center pt-10">

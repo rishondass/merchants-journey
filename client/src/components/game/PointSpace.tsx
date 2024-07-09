@@ -10,7 +10,10 @@ const PointSpace = ({playerPointCards}:Props) => {
   return (
     <Droppable droppableId="pointSpace" type="pointCard" direction={"vertical"}>
       {(provided)=>{
-        return <div ref={provided.innerRef} className="bg-yellow-200 w-36 flex flex-col items-center overflow-y-auto">
+        return <>
+        
+        <div ref={provided.innerRef} className="bg-yellow-200 w-36 flex flex-col items-center overflow-y-auto">
+          <div>Points Cards</div>
           {playerPointCards?.map((item,index)=>{
             return <Draggable draggableId='pointSpace' index={index} key={index}>
               {(provided)=>{
@@ -25,7 +28,7 @@ const PointSpace = ({playerPointCards}:Props) => {
             </Draggable>
           })}
 
-        </div>
+        </div></>
       }}
     </Droppable>
   )

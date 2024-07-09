@@ -9,7 +9,9 @@ const ActiveCards = ({playerActiveCards}:Props) => {
   return (
     <Droppable droppableId="activeCards" type="card" direction="horizontal">
             {(provided)=>{
-              return <div 
+              return <>
+              <div>Active Cards</div>
+              <div 
               ref={provided.innerRef}
               className="bg-[#CDE8F0] w-11/12 h-52 items-center rounded-md flex py-2 overflow-x-auto">
                 {playerActiveCards?.map((item,index) => (
@@ -30,6 +32,7 @@ const ActiveCards = ({playerActiveCards}:Props) => {
                   </Draggable>
                 ))}
               </div>
+              </>
             }}
           </Droppable>
   )
